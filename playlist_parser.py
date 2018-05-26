@@ -22,7 +22,7 @@ class PlaylistParser:
                 absolute_file_name = os.path.join(normalized_path, file_name)
                 files.append(absolute_file_name)
 
-        Logger.log_info(str(len(files)) + ' conform playlist file naming convention')
+        Logger.log_info(str(len(files)) + ' playlist files conform file name convention')
         return files
 
     @staticmethod
