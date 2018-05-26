@@ -57,6 +57,6 @@ class Playlist:
             track = Track.from_dict(item)
             tracks.append(track)
 
-        return Playlist(data['name'], data['collaborative'], data['pid'], data['modified_at'], data['num_tracks'],
+        return Playlist(data['name'], data['collaborative'], int(data['pid']), data['modified_at'], data['num_tracks'],
                         data['num_albums'], data['num_followers'], tracks, data['num_edits'],
                         data['duration_ms'], data['num_artists'])
