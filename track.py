@@ -5,7 +5,7 @@ from typing import Dict
 
 class Track:
 
-    def __init__(self, name: str, uri: str, pos: str, artist: str, album: str, duration: str):
+    def __init__(self, name: str, uri: str, pos: int, artist: str, album: str, duration: str):
         self.__name = name
         self.__uri = uri
         self.__pos = pos
@@ -19,7 +19,10 @@ class Track:
     def get_uri(self) -> str:
         return self.__uri
 
-    def get_pos(self) -> str:
+    def get_simplified_uri(self)-> str:
+        return self.__uri[14:]
+
+    def get_pos(self) -> int:
         return self.__pos
 
     def get_artist(self) -> str:
@@ -36,4 +39,4 @@ class Track:
         album = Album.from_dict(data)
         artist = Artist.from_dict(data)
 
-        return Track(data['track_name'], data['track_uri'], data['pos'], artist, album, data['duration_ms'])
+        return Track(data['track_name'], data['track_uri'], int(data['pos']), artist, album, data['duration_ms'])

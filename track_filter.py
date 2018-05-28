@@ -14,7 +14,7 @@ class TrackFilter:
         for p_slice in playlist_slices:
             for playlist in p_slice.get_playlist_collection():
                 for track in playlist.get_tracks():
-                    url = track.get_uri()[14:]
+                    url = track.get_simplified_uri()
 
                     if url not in unique_track_urls:
                         unique_track_urls.add(url)
