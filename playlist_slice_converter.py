@@ -6,6 +6,7 @@ from typing import List
 
 class PlaylistSliceConverter:
 
+    @staticmethod
     def from_json_files(files: List[str]) -> List[PlaylistSlice]:
         Logger.log_info('Start converting ' + str(len(files)) + ' playlist files from json to object')
         slices = []
