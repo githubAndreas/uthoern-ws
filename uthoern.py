@@ -18,4 +18,7 @@ if __name__ == '__main__':
     ranging_matrix = RangingMatrixFactory.create_nparray_matrix(total_number_of_playlist, len(unique_track_uris),
                                                                 slices, unique_track_uris)
 
+    template_ranging_matrix = RangingMatrixFactory.create_template_ranging_matrix(ranging_matrix)
+    print(template_ranging_matrix)
+
     Logger.log_info('Stop uthoern')
