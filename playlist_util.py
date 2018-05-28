@@ -1,10 +1,12 @@
 from logger import Logger
+from typing import List
+from playlist_slice import PlaylistSlice
 
 
 class PlaylistUtil:
 
     @staticmethod
-    def count_playlists_of_slices(playlist_slices):
+    def count_playlists_of_slices(playlist_slices: List[PlaylistSlice]) -> int:
         Logger.log_info('Start counting total number of playlists')
 
         greatest_id = -1;

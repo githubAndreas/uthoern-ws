@@ -1,10 +1,11 @@
 from album import Album
-from artists import Artists
+from artist import Artist
+from typing import Dict
 
 
 class Track:
 
-    def __init__(self, name, uri, pos, artist, album, duration):
+    def __init__(self, name: str, uri: str, pos: str, artist: str, album: str, duration: str):
         self.__name = name
         self.__uri = uri
         self.__pos = pos
@@ -12,27 +13,27 @@ class Track:
         self.__album = album
         self.__duration = duration
 
-    def get_name(self):
+    def get_name(self) -> str:
         return self.__name
 
-    def get_uri(self):
+    def get_uri(self) -> str:
         return self.__uri
 
-    def get_pos(self):
+    def get_pos(self) -> str:
         return self.__pos
 
-    def get_artist(self):
+    def get_artist(self) -> str:
         return self.__artist
 
-    def get_album(self):
+    def get_album(self) -> str:
         return self.__album
 
-    def get_duration(self):
+    def get_duration(self) -> str:
         return self.__duration
 
     @staticmethod
-    def from_dict(data):
+    def from_dict(data: Dict) -> 'Track':
         album = Album.from_dict(data)
-        artist = Artists.from_dict(data)
+        artist = Artist.from_dict(data)
 
         return Track(data['track_name'], data['track_uri'], data['pos'], artist, album, data['duration_ms'])

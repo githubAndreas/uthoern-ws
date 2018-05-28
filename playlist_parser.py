@@ -2,12 +2,13 @@ import os
 import re
 import sys
 from logger import Logger
+from typing import List
 
 
 class PlaylistParser:
 
     @staticmethod
-    def parse_folder(absolute_folder_path):
+    def parse_folder(absolute_folder_path: str) -> List[str]:
         Logger.log_info('Start parsing folder: ' + absolute_folder_path)
 
         normalized_path = os.path.normpath(absolute_folder_path)
@@ -26,7 +27,7 @@ class PlaylistParser:
         return files
 
     @staticmethod
-    def _check_folder_exists(normalized_path):
+    def _check_folder_exists(normalized_path: str) -> None:
         if not os.path.exists(normalized_path):
             Logger.log_error("Path not found: " + normalized_path)
             sys.exit(1)

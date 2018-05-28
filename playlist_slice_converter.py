@@ -1,11 +1,12 @@
 import json
 from playlist_slice import PlaylistSlice
 from logger import Logger
+from typing import List
 
 
 class PlaylistSliceConverter:
 
-    def from_json_files(files):
+    def from_json_files(files: List[str]) -> List[PlaylistSlice]:
         Logger.log_info('Start converting ' + str(len(files)) + ' playlist files from json to object')
         slices = []
         for file in files:

@@ -1,10 +1,12 @@
 from logger import Logger
+from typing import List
+from playlist_slice import PlaylistSlice
 
 
 class TrackFilter:
 
     @staticmethod
-    def unique_from_playlist_slices(playlist_slices):
+    def unique_from_playlist_slices(playlist_slices: List[PlaylistSlice]) -> List[str]:
         Logger.log_info('Start collecting unique title urls')
 
         unique_track_urls = set()

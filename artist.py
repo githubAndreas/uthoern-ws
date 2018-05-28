@@ -1,7 +1,7 @@
 from typing import Dict
 
 
-class Album:
+class Artist:
 
     def __init__(self, name: str, uri: str):
         self.__name = name
@@ -14,5 +14,5 @@ class Album:
         return self.__uri
 
     @staticmethod
-    def from_dict(data: Dict) -> 'Album':
-        return Album(data['album_name'], data['album_uri'])
+    def from_dict(data: Dict) -> 'Artit':
+        return Artist(data['artist_name'], data['artist_uri'])
