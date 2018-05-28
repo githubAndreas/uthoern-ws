@@ -7,16 +7,15 @@ from ranging_matrix_factory import RangingMatrixFactory
 
 if __name__ == '__main__':
     Logger.log_info('Start uthoern')
-    files = PlaylistParser.parse_folder('E:/Development/uthoern/test')
-    #files = PlaylistParser.parse_folder('E:/Development/_data/mpd.v1/data')
+    file_collection = PlaylistParser.parse_folder('E:/Development/uthoern/test')
+    # files = PlaylistParser.parse_folder('E:/Development/_data/mpd.v1/data')
 
-    slices = PlaylistSliceConverter.from_json_files(files)
+    slices = PlaylistSliceConverter.from_json_files(file_collection)
 
-    unique_tracks = TrackFilter.unique_from_playlist_slices(slices)
+    unique_track_uris = TrackFilter.unique_track_uris_from_playlist_slices(slices)
     total_number_of_playlist = PlaylistUtil.count_playlists_of_slices(slices)
 
-    ranging_matrix = RangingMatrixFactory.create_nparray_matrix(total_number_of_playlist, len(unique_tracks), slices)
-
-
+    ranging_matrix = RangingMatrixFactory.create_nparray_matrix(total_number_of_playlist, len(unique_track_uris),
+                                                                slices, unique_track_uris)
 
     Logger.log_info('Stop uthoern')
