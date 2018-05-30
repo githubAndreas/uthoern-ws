@@ -12,13 +12,9 @@ if __name__ == '__main__':
 
     slices = PlaylistSliceConverter.from_json_files(file_collection)
 
-    unique_track_uris = TrackFilter.unique_track_uris_from_playlist_slices(slices)
-    total_number_of_playlist = PlaylistUtil.count_playlists_of_slices(slices)
+    ranging_df = RangingMatrixFactory.create_data_frame(slices)
 
-    ranging_matrix = RangingMatrixFactory.create_nparray_matrix(len(unique_track_uris), total_number_of_playlist,
-                                                                slices, unique_track_uris)
+    template_ranging_matrix = RangingMatrixFactory.create_template_ranging_matrix(ranging_df)
 
-    template_ranging_matrix = RangingMatrixFactory.create_template_ranging_matrix(ranging_matrix)
-    print(template_ranging_matrix)
 
     Logger.log_info('Stop uthoern')
