@@ -46,5 +46,5 @@ class RangingMatrixFactory:
 
         csr = sparse.csr_matrix(ranging_df.values)
 
-        Logger.log_info('Finish successfly creation of ranging matrix')
+        Logger.log_info('Finish successfully creation of ranging matrix')
         return csr
