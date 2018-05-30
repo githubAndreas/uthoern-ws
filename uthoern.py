@@ -15,7 +15,7 @@ if __name__ == '__main__':
     unique_track_uris = TrackFilter.unique_track_uris_from_playlist_slices(slices)
     total_number_of_playlist = PlaylistUtil.count_playlists_of_slices(slices)
 
-    ranging_matrix = RangingMatrixFactory.create_nparray_matrix(total_number_of_playlist, len(unique_track_uris),
+    ranging_matrix = RangingMatrixFactory.create_nparray_matrix(len(unique_track_uris), total_number_of_playlist,
                                                                 slices, unique_track_uris)
 
     template_ranging_matrix = RangingMatrixFactory.create_template_ranging_matrix(ranging_matrix)

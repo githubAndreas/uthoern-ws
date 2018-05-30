@@ -22,7 +22,7 @@ class RangingMatrixFactory:
                 for track in playlist.get_tracks():
                     track_index = unique_track_uris[track.get_simplified_uri()]
 
-                    ranging_matrix[track_index, playlist_id] = 1.0
+                    ranging_matrix[playlist_id, track_index] = 1.0
 
             Logger.log_info(
                 'Slice[' + p_slice.get_info().get_item_range() + '] ratings successfully insert into ranging matrix')
