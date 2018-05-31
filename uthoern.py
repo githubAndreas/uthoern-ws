@@ -23,8 +23,8 @@ if __name__ == '__main__':
         Logger.log_info(
             'Model[' + str(column_index + 1) + '/' + str(len(ranging_df.columns)) + '] Name:' + target_column)
 
-        y = ranging_df.loc[:, target_column].values
-        X = ranging_df.drop(target_column, 'columns').as_matrix()
+        y = ranging_df.loc[:, target_column]
+        X = ranging_df.drop(target_column, 'columns')
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
 
@@ -37,19 +37,20 @@ if __name__ == '__main__':
         # reg = SVR(C=1.0, epsilon=0.2)
 
         # Trainieren
-        reg.fit(X_train, y_train)
+        reg_train = reg.fit(X_train, y_train)
 
         # vorhersage
         predicted_column = reg.predict(X_test)
 
-        new_column = np.append(y_train, predicted_column)
+        # new_column = np.append(y_train, predicted_column)
 
-        for row_index, row in ranging_df.iterrows():
-            cell_value = row[target_column]
-            if not math.isclose(cell_value, 1.0, abs_tol=0.00000001):
-                ranging_df = ranging_df.set_value(row_index, target_column, new_column[row_index])
+        i = 0
+        for row_index, row in X_test.iterrows():
+            if template_ranging_matrix[row_index, column_index] == 0:
+                ranging_df = ranging_df.set_value(row_index, target_column, predicted_column[i])
+                i = i + 1
 
-        print("Score Trainingsdatensatz: {:.2f}".format(reg.score(X_train, y_train)))
+        print("Score Trainingsdatensatz: {:.2f}".format(reg_train.score(X_train, y_train)))
         print("Score Testdatensatz: {:.2f}".format(reg.score(X_test, y_test)))
 
     Logger.log_info('Stop uthoern')
