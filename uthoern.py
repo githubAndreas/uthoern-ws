@@ -3,7 +3,7 @@ from playlist_parser import PlaylistParser
 from playlist_slice_converter import PlaylistSliceConverter
 from ranging_matrix_factory import RangingMatrixFactory
 from sklearn.neighbors import KNeighborsRegressor
-from sklearn.linear_model import LinearRegression, Ridge, Lasso
+from sklearn.linear_model import LinearRegression, Ridge, Lasso, BayesianRidge
 from sklearn.svm import SVR
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -33,6 +33,7 @@ if __name__ == '__main__':
         # reg = LinearRegression(n_jobs=-1)
         reg = Ridge()
         # reg = Lasso
+        # reg = BayesianRidge()
         # reg = SVR(C=1.0, epsilon=0.2)
 
         # Trainieren
@@ -46,8 +47,8 @@ if __name__ == '__main__':
 
         for row_index, row in ranging_df.iterrows():
             cell_value = row[target_column]
-            if cell_value != 1:
-                cell_value = new_column[row_index]
+            if cell_value < 1.0:
+                ranging_df.at[target_column, row_index] = new_column[row_index]
 
         print("Score Testdatensatz: {:.2f}".format(reg.score(X_test, y_test)))
 
