@@ -7,6 +7,7 @@ from sklearn.linear_model import LinearRegression, Ridge, Lasso, BayesianRidge
 from sklearn.svm import SVR
 import numpy as np
 from sklearn.model_selection import train_test_split
+import math
 
 if __name__ == '__main__':
     Logger.log_info('Start uthoern')
@@ -23,7 +24,8 @@ if __name__ == '__main__':
             'Model[' + str(column_index + 1) + '/' + str(len(ranging_df.columns)) + '] Name:' + target_column)
 
         # Testdaten
-        y = ranging_df[target_column]
+        # y = ranging_df[target_column]
+		y = ranging_df.loc[:, target_column].as_matrix()
         X = ranging_df.drop(target_column, 'columns').as_matrix()
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
@@ -47,8 +49,10 @@ if __name__ == '__main__':
 
         for row_index, row in ranging_df.iterrows():
             cell_value = row[target_column]
-            if cell_value < 1.0:
-                ranging_df.at[target_column, row_index] = new_column[row_index]
+            #if cell_value < 1.0:
+			if(not math.isclose(cell_value, 1.0, abs_tol=0.00000001))
+                #ranging_df.at[target_column, row_index] = 
+				ranging_df = ranging_df.set_value(row_index, target_column, new_column[row_index])
 
         print("Score Testdatensatz: {:.2f}".format(reg.score(X_test, y_test)))
 
