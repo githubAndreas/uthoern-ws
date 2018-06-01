@@ -42,8 +42,6 @@ if __name__ == '__main__':
         # vorhersage
         predicted_column = reg.predict(X_test)
 
-        # new_column = np.append(y_train, predicted_column)
-
         i = 0
         for row_index, row in X_test.iterrows():
             if template_ranging_matrix[row_index, column_index] == 0:
