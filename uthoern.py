@@ -8,6 +8,7 @@ from sklearn.svm import SVR
 import numpy as np
 from sklearn.model_selection import train_test_split
 import math
+from data_frame_util import DataFrameUtil
 
 if __name__ == '__main__':
     Logger.log_info('Start uthoern')
@@ -28,16 +29,18 @@ if __name__ == '__main__':
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
 
+        DataFrameUtil.export_to_csv(X_test, "./export")
+
         # Modele
         # reg = KNeighborsRegressor(n_neighbors=2,n_jobs=-1)
         # reg = LinearRegression(n_jobs=-1)
-        reg = Ridge()
+        # reg = Ridge()
         # reg = Lasso
         # reg = BayesianRidge()
         # reg = SVR(C=1.0, epsilon=0.2)
 
         # Trainieren
-        reg_train = reg.fit(X_train, y_train)
+        """reg_train = reg.fit(X_train, y_train)
 
         # vorhersage
         predicted_column = reg.predict(X_test)
@@ -49,6 +52,6 @@ if __name__ == '__main__':
                 i = i + 1
 
         print("Score Trainingsdatensatz: {:.2f}".format(reg_train.score(X_train, y_train)))
-        print("Score Testdatensatz: {:.2f}".format(reg.score(X_test, y_test)))
+        print("Score Testdatensatz: {:.2f}".format(reg.score(X_test, y_test)))"""
 
     Logger.log_info('Stop uthoern')
