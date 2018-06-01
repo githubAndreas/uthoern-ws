@@ -1,7 +1,7 @@
 import pandas as pd
 import csv
 from os import path
-import datetime
+from date_time_util import DateTimeUtil
 
 
 class DataFrameUtil:
@@ -33,6 +33,6 @@ class DataFrameUtil:
 
     @staticmethod
     def __create_export_file_name(absolute_export_path: str) -> str:
-        file_name = datetime.datetime.now().strftime("%Y%m%d_%H_%M_%S_%f") + '_' + DataFrameUtil.FILE_NAME
+        file_name = DateTimeUtil.get_timestamp_as_string() + '_' + DataFrameUtil.FILE_NAME
 
         return path.join(absolute_export_path, file_name)
