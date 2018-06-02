@@ -11,6 +11,9 @@ class Playlist:
     def get_pid(self) -> int:
         return self.__pid
 
+    def get_tracks(self) -> List[Track]:
+        return self.__tracks
+
     @staticmethod
     def from_dict(data: Dict) -> 'Playlist':
         tracks = []
