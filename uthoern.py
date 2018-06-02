@@ -11,13 +11,16 @@ import math
 from data_frame_util import DataFrameUtil
 from date_time_util import DateTimeUtil
 from model_util import ModelUtil
+import sys
+from argparse import ArgumentParser
+from os import path
 
 
-def train_model():
+def train_model(absolute_train_data_path: str):
     instance_id = DateTimeUtil.generate_timestamp_id()
     Logger.log_info("Start train model instance '{}'".format(instance_id))
 
-    file_collection = PlaylistParser.parse_folder('E:/Development/uthoern/test')
+    file_collection = PlaylistParser.parse_folder(absolute_train_data_path)
     # files = PlaylistParser.parse_folder('E:/Development/_data/mpd.v1/data')
 
     number_of_iterations = 1;
@@ -71,9 +74,32 @@ def recommend_challenge_set():
     pass
 
 
+def __receive_path_argument():
+    """Read path from command line arguments"""
+    parser = ArgumentParser()
+    parser.add_argument("path", type=str, help='path to show')
+
+    # Show --help if arguments are absent
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
+
+    args = parser.parse_args()
+    return args.path
+
+
 if __name__ == '__main__':
     Logger.log_info('Start uthoern')
 
-    train_model()
+    # Main function
+    string_path = __receive_path_argument()
+
+    # Validate path
+    target_path = path.normpath(string_path)
+    if not path.exists(target_path):
+        print("Error: Path not found: " + string_path + "!")
+        sys.exit(1)
+
+    train_model(target_path)
 
     Logger.log_info('Stop uthoern')

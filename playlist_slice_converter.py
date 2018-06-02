@@ -18,5 +18,7 @@ class PlaylistSliceConverter:
 
                 Logger.log_info('Slice[' + playlist_slice.get_info().get_item_range() + '] successfully converted')
 
+            file_content.close()
+
         Logger.log_info(str(len(slices)) + ' slices successfully converted to objects')
         return slices
