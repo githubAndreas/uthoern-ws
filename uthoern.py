@@ -12,8 +12,10 @@ from data_frame_util import DataFrameUtil
 from date_time_util import DateTimeUtil
 from model_util import ModelUtil
 
-if __name__ == '__main__':
-    Logger.log_info('Start uthoern')
+
+def train_model():
+    instance_id = DateTimeUtil.generate_timestamp_id()
+    Logger.log_info("Start train model instance '{}'".format(instance_id))
 
     file_collection = PlaylistParser.parse_folder('E:/Development/uthoern/test')
     # files = PlaylistParser.parse_folder('E:/Development/_data/mpd.v1/data')
@@ -25,8 +27,6 @@ if __name__ == '__main__':
 
     ranging_df = RangingMatrixFactory.create_data_frame(slices)
     template_ranging_matrix = RangingMatrixFactory.create_template_ranging_matrix(ranging_df)
-
-    instance_id = DateTimeUtil.generate_timestamp_id()
 
     for ranging_iter in range(number_of_iterations):
         for column_index, target_column in enumerate(ranging_df.columns):
@@ -63,5 +63,17 @@ if __name__ == '__main__':
 
             print("Score Trainingsdatensatz: {:.2f}".format(reg_train.score(X_train, y_train)))
             print("Score Testdatensatz: {:.2f}".format(reg.score(X_test, y_test)))
+
+    Logger.log_info("Finish train model instance '{}'".format(instance_id))
+
+
+def recommend_challenge_set():
+    pass
+
+
+if __name__ == '__main__':
+    Logger.log_info('Start uthoern')
+
+    train_model()
 
     Logger.log_info('Stop uthoern')
