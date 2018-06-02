@@ -1,5 +1,5 @@
 from sklearn.externals import joblib
-from os import path
+from os import path, makedirs
 from logger import Logger
 
 
@@ -14,7 +14,11 @@ class ModelUtil:
         file_name = '{}_{}_{}.{}'.format(instance_id, model_type, column,
                                          ModelUtil.FILE_TYPE)
 
-        absolute_export_path = path.join(path.abspath(ModelUtil.MODEL_STORAGE), file_name)
+        instance_folder = path.join(path.abspath(ModelUtil.MODEL_STORAGE), instance_id)
+        if not path.exists(instance_folder):
+            makedirs(instance_folder)
+
+        absolute_export_path = path.join(instance_folder, file_name)
         Logger.log_info("Path: '{}'".format(absolute_export_path))
 
         joblib.dump(model, absolute_export_path)
