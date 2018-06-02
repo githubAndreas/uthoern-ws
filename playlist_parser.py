@@ -15,6 +15,7 @@ class PlaylistParser:
         PlaylistParser._check_folder_exists(normalized_path)
 
         file_names = os.listdir(normalized_path)
+        file_names.sort()
         Logger.log_info('Find ' + str(len(file_names)) + ' files in folder')
 
         files = []
