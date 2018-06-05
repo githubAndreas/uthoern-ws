@@ -40,8 +40,8 @@ def train_model(absolute_train_data_path: str):
 
             # Modele
             # reg = KNeighborsRegressor(n_neighbors=2,n_jobs=-1)
-            reg = LinearRegression(n_jobs=-1)
-            # reg = Ridge()
+            # reg = LinearRegression(n_jobs=-1)
+            reg = Ridge()
             # reg = Lasso
             # reg = BayesianRidge()
             # reg = SVR(C=1.0, epsilon=0.2)
@@ -53,11 +53,13 @@ def train_model(absolute_train_data_path: str):
             predicted_column = reg.predict(X_test.as_matrix())
 
             # Save model
-            ModelUtil.save_to_disk(reg, instance_id, 'Ridge', target_column)
+            if ranging_iter == number_of_iterations - 1:
+                ModelUtil.save_to_disk(reg, instance_id, 'Ridge', target_column)
 
             Logger.log_info('Start writing predicted values into rating matrix')
             i = 0
             for row_index, row in X_test.iterrows():
+                print(str(i))
                 if template_ranging_matrix[row_index, column_index] == 0:
                     ranging_sdf = ranging_sdf.set_value(row_index, target_column, predicted_column[i])
                     i = i + 1
