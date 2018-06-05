@@ -20,14 +20,15 @@ def train_model(absolute_train_data_path: str):
     instance_id = DateTimeUtil.generate_timestamp_id()
     Logger.log_info("Start train model instance '{}'".format(instance_id))
 
+	# 1. Dateien sammeln
     file_collection = PlaylistParser.parse_folder(absolute_train_data_path)
-    # files = PlaylistParser.parse_folder('E:/Development/_data/mpd.v1/data')
 
-    number_of_iterations = 1;
-    Logger.log_info('Configured number of complete iterations: {}'.format(number_of_iterations))
-
+	# 2. Sparse Matrix und column title List erstellen
     ranging_sdf, template_ranging_matrix = RangingMatrixFactory.create(file_collection)
 
+	number_of_iterations = 1;
+    Logger.log_info('Configured number of complete iterations: {}'.format(number_of_iterations))
+	
     for ranging_iter in range(number_of_iterations):
         for column_index, target_column in enumerate(ranging_sdf.columns):
             Logger.log_info(
