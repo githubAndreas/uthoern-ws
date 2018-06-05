@@ -59,7 +59,6 @@ def train_model(absolute_train_data_path: str):
             Logger.log_info('Start writing predicted values into rating matrix')
             i = 0
             for row_index, row in X_test.iterrows():
-                print(str(i))
                 if template_ranging_matrix[row_index, column_index] == 0:
                     ranging_sdf = ranging_sdf.set_value(row_index, target_column, predicted_column[i])
                     i = i + 1
