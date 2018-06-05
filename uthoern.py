@@ -1,6 +1,6 @@
 from logger import Logger
 from playlist_parser import PlaylistParser
-from playlist_slice_converter import PlaylistSliceConverter
+
 from ranging_matrix_factory import RangingMatrixFactory
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.linear_model import LinearRegression, Ridge, Lasso, BayesianRidge
@@ -26,43 +26,43 @@ def train_model(absolute_train_data_path: str):
     number_of_iterations = 1;
     Logger.log_info('Configured number of complete iterations: {}'.format(number_of_iterations))
 
-    slices = PlaylistSliceConverter.from_json_files(file_collection)
-
-    ranging_df = RangingMatrixFactory.create_data_frame(slices)
-    template_ranging_matrix = RangingMatrixFactory.create_template_ranging_matrix(ranging_df)
+    ranging_sdf, template_ranging_matrix = RangingMatrixFactory.create(file_collection)
 
     for ranging_iter in range(number_of_iterations):
-        for column_index, target_column in enumerate(ranging_df.columns):
+        for column_index, target_column in enumerate(ranging_sdf.columns):
             Logger.log_info(
-                'Model[' + str(column_index + 1) + '/' + str(len(ranging_df.columns)) + '] Name:' + target_column)
+                'Model[' + str(column_index + 1) + '/' + str(len(ranging_sdf.columns)) + '] Name:' + target_column)
 
-            y = ranging_df.loc[:, target_column]
-            X = ranging_df.drop(target_column, 'columns')
+            y = ranging_sdf.loc[:, target_column]
+            X = ranging_sdf.drop(target_column, 'columns')
 
             X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
 
             # Modele
             # reg = KNeighborsRegressor(n_neighbors=2,n_jobs=-1)
-            # reg = LinearRegression(n_jobs=-1)
-            reg = Ridge()
+            reg = LinearRegression(n_jobs=-1)
+            # reg = Ridge()
             # reg = Lasso
             # reg = BayesianRidge()
             # reg = SVR(C=1.0, epsilon=0.2)
 
             # Train
-            reg_train = reg.fit(X_train, y_train)
+            reg_train = reg.fit(X_train.as_matrix(), y_train.as_matrix())
 
             # Predict
-            predicted_column = reg.predict(X_test)
+            predicted_column = reg.predict(X_test.as_matrix())
 
             # Save model
             ModelUtil.save_to_disk(reg, instance_id, 'Ridge', target_column)
 
+            Logger.log_info('Start writing predicted values into rating matrix')
             i = 0
             for row_index, row in X_test.iterrows():
                 if template_ranging_matrix[row_index, column_index] == 0:
-                    ranging_df = ranging_df.set_value(row_index, target_column, predicted_column[i])
+                    ranging_sdf = ranging_sdf.set_value(row_index, target_column, predicted_column[i])
                     i = i + 1
+
+            Logger.log_info('Finish writing predicted values into rating matrix')
 
             print("Score Trainingsdatensatz: {:.2f}".format(reg_train.score(X_train, y_train)))
             print("Score Testdatensatz: {:.2f}".format(reg.score(X_test, y_test)))
