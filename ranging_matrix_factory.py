@@ -16,10 +16,25 @@ class RangingMatrixFactory:
 
         template_ranging_matrix, unique_track_uris = RangingMatrixFactory._create_template(file_collection);
 
+		template_ranging_matrix = RangingMatrixFactory._reduce_dimension(template_ranging_matrix, 5000)
+		
         Logger.log_info('Create sparse data frame')
         return pd.SparseDataFrame(data=template_ranging_matrix, columns=[*unique_track_uris],
                                   default_fill_value=0.0, dtype=np.float64), template_ranging_matrix
 
+	@staticmethod								
+	def	_reduce_dimension(sparse_matrix, row_numbs):
+		shape = sparse_matrix.get_shape()
+		Logger.log_info('Start reducing dimension of sparse matrix from: x=' + str(shape[0]) + '; y=' + str(shape[1]))
+		Logger.log_info('Reduce to {} rows'.format(str(row_numbs)))
+		
+		new_dim = (shape[0], row_numbs)
+		minimized_shape = sparse_matrix.resize(new_dim);
+		shape = minimized_shape.get_shape()
+		Logger.log_info('Sparse matrix format after resizing: x=' + str(shape[0]) + '; y=' + str(shape[1]))
+		
+		return minimized_shape
+								  
     @staticmethod
     def _create_template( file_collection: List[str]):
         Logger.log_info('Start creating initial ranging data frame')
