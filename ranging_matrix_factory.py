@@ -12,31 +12,30 @@ from playlist_slice_converter import PlaylistSliceConverter
 class RangingMatrixFactory:
 
     @staticmethod
-    def create(file_collection: List[str]) -> pd.DataFrame:
-
+    def create(file_collection: List[str], pids:int) -> pd.DataFrame:
         template_ranging_matrix, unique_track_uris = RangingMatrixFactory._create_template(file_collection);
 
-		template_ranging_matrix = RangingMatrixFactory._reduce_dimension(template_ranging_matrix, 5000)
-		
-        Logger.log_info('Create sparse data frame')
-        return pd.SparseDataFrame(data=template_ranging_matrix, columns=[*unique_track_uris],
-                                  default_fill_value=0.0, dtype=np.float64), template_ranging_matrix
+        template_ranging_matrix = RangingMatrixFactory._reduce_dimension(template_ranging_matrix, pids)
 
-	@staticmethod								
-	def	_reduce_dimension(sparse_matrix, row_numbs):
-		shape = sparse_matrix.get_shape()
-		Logger.log_info('Start reducing dimension of sparse matrix from: x=' + str(shape[0]) + '; y=' + str(shape[1]))
-		Logger.log_info('Reduce to {} rows'.format(str(row_numbs)))
-		
-		new_dim = (shape[0], row_numbs)
-		minimized_shape = sparse_matrix.resize(new_dim);
-		shape = minimized_shape.get_shape()
-		Logger.log_info('Sparse matrix format after resizing: x=' + str(shape[0]) + '; y=' + str(shape[1]))
-		
-		return minimized_shape
-								  
+        Logger.log_info('Create sparse data frame')
+        return pd.DataFrame(data=template_ranging_matrix.toarray(), columns=[*unique_track_uris],
+                            dtype=np.float32), template_ranging_matrix
+
     @staticmethod
-    def _create_template( file_collection: List[str]):
+    def _reduce_dimension(sparse_matrix, row_numbs):
+        shape = sparse_matrix.get_shape()
+        Logger.log_info('Start reducing dimension of sparse matrix from: x=' + str(shape[1]) + '; y=' + str(shape[0]))
+        Logger.log_info('Reduce to {} rows'.format(str(row_numbs)))
+
+        new_dim = (row_numbs, shape[1])
+        sparse_matrix.resize(new_dim);
+        shape = sparse_matrix.get_shape()
+        Logger.log_info('Sparse matrix format after resizing: x=' + str(shape[1]) + '; y=' + str(shape[0]))
+
+        return sparse_matrix
+
+    @staticmethod
+    def _create_template(file_collection: List[str]):
         Logger.log_info('Start creating initial ranging data frame')
 
         slices = PlaylistSliceConverter.from_json_files(file_collection)

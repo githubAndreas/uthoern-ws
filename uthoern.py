@@ -16,13 +16,13 @@ from argparse import ArgumentParser
 from os import path
 
 
-def train_model(absolute_train_data_path: str):
+def train_model(absolute_train_data_path: str, pids:int):
     instance_id = DateTimeUtil.generate_timestamp_id()
     Logger.log_info("Start train model instance '{}'".format(instance_id))
 
     file_collection = PlaylistParser.parse_folder(absolute_train_data_path)
 
-    ranging_sdf, template_ranging_matrix = RangingMatrixFactory.create(file_collection)
+    ranging_sdf, template_ranging_matrix = RangingMatrixFactory.create(file_collection, pids)
 
     number_of_iterations = 1
     Logger.log_info('Configured number of complete iterations: {}'.format(number_of_iterations))
@@ -78,6 +78,7 @@ def __receive_path_argument():
     """Read path from command line arguments"""
     parser = ArgumentParser()
     parser.add_argument("path", type=str, help='path to show')
+    parser.add_argument("pids", type=int, help='Number of pids')
 
     # Show --help if arguments are absent
     if len(sys.argv) == 1:
@@ -85,14 +86,14 @@ def __receive_path_argument():
         sys.exit(1)
 
     args = parser.parse_args()
-    return args.path
+    return args.path, args.pids
 
 
 if __name__ == '__main__':
     Logger.log_info('Start uthoern')
 
     # Main function
-    string_path = __receive_path_argument()
+    string_path, pids = __receive_path_argument()
 
     # Validate path
     target_path = path.normpath(string_path)
@@ -100,6 +101,6 @@ if __name__ == '__main__':
         print("Error: Path not found: " + string_path + "!")
         sys.exit(1)
 
-    train_model(target_path)
+    train_model(target_path, pids)
 
     Logger.log_info('Stop uthoern')
