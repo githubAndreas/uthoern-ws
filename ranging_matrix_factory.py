@@ -12,14 +12,13 @@ from playlist_slice_converter import PlaylistSliceConverter
 class RangingMatrixFactory:
 
     @staticmethod
-    def create(file_collection: List[str], pids:int) -> pd.DataFrame:
+    def create(file_collection: List[str], pids:int):
         template_ranging_matrix, unique_track_uris = RangingMatrixFactory._create_template(file_collection);
 
         template_ranging_matrix = RangingMatrixFactory._reduce_dimension(template_ranging_matrix, pids)
 
         Logger.log_info('Create sparse data frame')
-        return pd.DataFrame(data=template_ranging_matrix.toarray(), columns=[*unique_track_uris],
-                            dtype=np.float32), template_ranging_matrix
+        return unique_track_uris, template_ranging_matrix
 
     @staticmethod
     def _reduce_dimension(sparse_matrix, row_numbs):

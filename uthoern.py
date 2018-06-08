@@ -14,7 +14,8 @@ from model_util import ModelUtil
 import sys
 from argparse import ArgumentParser
 from os import path
-
+from sklearn.feature_selection import VarianceThreshold
+import pandas as pd
 
 def train_model(absolute_train_data_path: str, pids:int):
     instance_id = DateTimeUtil.generate_timestamp_id()
@@ -22,21 +23,27 @@ def train_model(absolute_train_data_path: str, pids:int):
 
     file_collection = PlaylistParser.parse_folder(absolute_train_data_path)
 
-    ranging_sdf, template_ranging_matrix = RangingMatrixFactory.create(file_collection, pids)
+    unique_track_uris, template_ranging_matrix = RangingMatrixFactory.create(file_collection, pids)
 
     number_of_iterations = 1
     Logger.log_info('Configured number of complete iterations: {}'.format(number_of_iterations))
 
     for ranging_iter in range(number_of_iterations):
-        for column_index, target_column in enumerate(ranging_sdf.columns):
+        for column_index, target_column in enumerate(unique_track_uris):
             Logger.log_info(
-                'Model[' + str(column_index + 1) + '/' + str(len(ranging_sdf.columns)) + '] Name:' + target_column)
+                'Model[' + str(column_index + 1) + '/' + str(len(unique_track_uris)) + '] Name:' + target_column)
 
-            y = ranging_sdf.loc[:, target_column]
-            X = ranging_sdf.drop(target_column, 'columns')
+            y = template_ranging_matrix.getcol(column_index)
+            y_df = pd.DataFrame(data=y.toarray(), dtype=np.float32)
+            
+            selector = VarianceThreshold()
+            X_sparse = selector.fit_transform(template_ranging_matrix, y)
+            
+            X = pd.DataFrame(data=X_sparse.toarray(), dtype=np.float32)
 
-            X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
-
+            X_train, X_test, y_train, y_test = train_test_split(X, y_df, random_state=42)
+            print(type(X_train))
+            print(type(y_train))
             # Modele
             # reg = KNeighborsRegressor(n_neighbors=2,n_jobs=-1)
             # reg = LinearRegression(n_jobs=-1)
@@ -46,7 +53,7 @@ def train_model(absolute_train_data_path: str, pids:int):
             # reg = SVR(C=1.0, epsilon=0.2)
 
             # Train
-            reg_train = reg.fit(X_train.as_matrix(), y_train.as_matrix())
+            reg_train = reg.fit(X_train.values, y_train)
 
             # Predict
             predicted_column = reg.predict(X_test.as_matrix())
@@ -58,8 +65,8 @@ def train_model(absolute_train_data_path: str, pids:int):
             Logger.log_info('Start writing predicted values into rating matrix')
             i = 0
             for row_index, row in X_test.iterrows():
-                if template_ranging_matrix[row_index, column_index] == 0:
-                    ranging_sdf = ranging_sdf.set_value(row_index, target_column, predicted_column[i])
+                if template_ranging_matrix[row_index, column_index] != 1:
+                    template_ranging_matrix[row_index, column_index] = predicted_column[i]
                     i = i + 1
 
             Logger.log_info('Finish writing predicted values into rating matrix')
