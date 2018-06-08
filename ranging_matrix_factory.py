@@ -18,7 +18,7 @@ class RangingMatrixFactory:
         template_ranging_matrix = RangingMatrixFactory._reduce_dimension(template_ranging_matrix, pids)
 
         Logger.log_info('Create sparse data frame')
-        return unique_track_uris, template_ranging_matrix
+        return unique_track_uris, template_ranging_matrix, template_ranging_matrix.copy()
 
     @staticmethod
     def _reduce_dimension(sparse_matrix, row_numbs):

@@ -23,7 +23,7 @@ def train_model(absolute_train_data_path: str, pids:int):
 
     file_collection = PlaylistParser.parse_folder(absolute_train_data_path)
 
-    unique_track_uris, template_ranging_matrix = RangingMatrixFactory.create(file_collection, pids)
+    unique_track_uris, sparse_ranging_matrix, template_ranging_matrix = RangingMatrixFactory.create(file_collection, pids)
 
     number_of_iterations = 1
     Logger.log_info('Configured number of complete iterations: {}'.format(number_of_iterations))
@@ -33,17 +33,16 @@ def train_model(absolute_train_data_path: str, pids:int):
             Logger.log_info(
                 'Model[' + str(column_index + 1) + '/' + str(len(unique_track_uris)) + '] Name:' + target_column)
 
-            y = template_ranging_matrix.getcol(column_index)
+            y = sparse_ranging_matrix.getcol(column_index)
             y_df = pd.DataFrame(data=y.toarray(), dtype=np.float32)
             
             selector = VarianceThreshold()
-            X_sparse = selector.fit_transform(template_ranging_matrix, y)
+            X_sparse = selector.fit_transform(sparse_ranging_matrix, y)
             
             X = pd.DataFrame(data=X_sparse.toarray(), dtype=np.float32)
 
             X_train, X_test, y_train, y_test = train_test_split(X, y_df, random_state=42)
-            print(type(X_train))
-            print(type(y_train))
+
             # Modele
             # reg = KNeighborsRegressor(n_neighbors=2,n_jobs=-1)
             # reg = LinearRegression(n_jobs=-1)
@@ -66,7 +65,7 @@ def train_model(absolute_train_data_path: str, pids:int):
             i = 0
             for row_index, row in X_test.iterrows():
                 if template_ranging_matrix[row_index, column_index] != 1:
-                    template_ranging_matrix[row_index, column_index] = predicted_column[i]
+                    sparse_ranging_matrix[row_index, column_index] = predicted_column[i]
                     i = i + 1
 
             Logger.log_info('Finish writing predicted values into rating matrix')
