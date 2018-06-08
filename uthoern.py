@@ -16,14 +16,17 @@ from argparse import ArgumentParser
 from os import path
 from sklearn.feature_selection import VarianceThreshold
 import pandas as pd
+import csv
 
-def train_model(absolute_train_data_path: str, pids:int):
+
+def train_model(absolute_train_data_path: str, pids: int):
     instance_id = DateTimeUtil.generate_timestamp_id()
     Logger.log_info("Start train model instance '{}'".format(instance_id))
 
     file_collection = PlaylistParser.parse_folder(absolute_train_data_path)
 
-    unique_track_uris, sparse_ranging_matrix, template_ranging_matrix = RangingMatrixFactory.create(file_collection, pids)
+    unique_track_uris, sparse_ranging_matrix, template_ranging_matrix = RangingMatrixFactory.create(file_collection,
+                                                                                                    pids)
 
     number_of_iterations = 1
     Logger.log_info('Configured number of complete iterations: {}'.format(number_of_iterations))
@@ -35,10 +38,10 @@ def train_model(absolute_train_data_path: str, pids:int):
 
             y = sparse_ranging_matrix.getcol(column_index)
             y_df = pd.DataFrame(data=y.toarray(), dtype=np.float32)
-            
+
             selector = VarianceThreshold()
             X_sparse = selector.fit_transform(sparse_ranging_matrix, y)
-            
+
             X = pd.DataFrame(data=X_sparse.toarray(), dtype=np.float32)
 
             X_train, X_test, y_train, y_test = train_test_split(X, y_df, random_state=42)
@@ -74,14 +77,14 @@ def train_model(absolute_train_data_path: str, pids:int):
             print("Score Testdatensatz: {:.2f}".format(reg.score(X_test, y_test)))
 
     Logger.log_info("Start saving row columns to {}".format(instance_id))
-    with open('{}_columns.csv'.format(instance_id),'wb') as f:
+    with open('{}_columns.csv'.format(instance_id), 'wb') as f:
         writer = csv.writer(f)
-        writer.writerow(somedict.keys())
-        writer.writerow(somedict.values())
+        writer.writerow(unique_track_uris.keys())
+        writer.writerow(unique_track_uris.values())
         writer.close()
-				
-    Logger.log_info("Finishing saving row columns")			
-			
+
+    Logger.log_info("Finishing saving row columns")
+
     Logger.log_info("Finish train model instance '{}'".format(instance_id))
 
 
