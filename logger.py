@@ -1,17 +1,30 @@
-import datetime
+import logging
+import sys
 
 
 class Logger:
 
-    @staticmethod
-    def log_info(msg: str) -> None:
-        Logger.__log('INFO', msg)
+    @classmethod
+    def __init__(cls):
+        cls.__logger = logging.getLogger()
+        cls.__logger.setLevel(level=logging.INFO)
+        fh = logging.FileHandler('uthoern.log')
+        fh.setLevel(logging.INFO)
 
-    @staticmethod
-    def log_error(msg: str) -> None:
-        Logger.__log('ERROR', msg)
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setLevel(logging.INFO)
 
-    @staticmethod
-    def __log(level: str, msg: str) -> None:
-        now = datetime.datetime.now()
-        print(str(now) + ': [' + level + '] ' + msg)
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        fh.setFormatter(formatter)
+        ch.setFormatter(formatter)
+
+        cls.__logger.addHandler(fh)
+        cls.__logger.addHandler(ch)
+
+    @classmethod
+    def log_info(cls, msg: str) -> None:
+        cls.__logger.info(msg)
+
+    @classmethod
+    def log_error(cls, msg: str) -> None:
+        cls.__logger.error(msg)

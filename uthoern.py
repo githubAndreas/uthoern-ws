@@ -73,8 +73,8 @@ def train_model(absolute_train_data_path: str, pids: int):
 
             Logger.log_info('Finish writing predicted values into rating matrix')
 
-            print("Score Trainingsdatensatz: {:.2f}".format(reg_train.score(X_train, y_train)))
-            print("Score Testdatensatz: {:.2f}".format(reg.score(X_test, y_test)))
+            Logger.log_info("Score Trainingsdatensatz: {:.2f}".format(reg_train.score(X_train, y_train)))
+            Logger.log_info("Score Testdatensatz: {:.2f}".format(reg.score(X_test, y_test)))
 
     Logger.log_info("Start saving row columns to {}".format(instance_id))
     with open('{}_columns.csv'.format(instance_id), 'wb') as f:
@@ -108,6 +108,7 @@ def __receive_path_argument():
 
 
 if __name__ == '__main__':
+    Logger.__init__()
     Logger.log_info('Start uthoern')
 
     # Main function
