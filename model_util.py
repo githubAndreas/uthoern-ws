@@ -26,6 +26,17 @@ class ModelUtil:
         Logger.log_info('Save model to disk successfully finished')
 
     @staticmethod
+    def load_from_disk(instance_id: int, model_type: str, column: str):
+        file_name = '{}_{}_{}.{}'.format(instance_id, model_type, column,
+                                         ModelUtil.FILE_TYPE)
+
+        instance_folder = path.join(path.abspath(ModelUtil.MODEL_STORAGE), str(instance_id))
+
+        absolute_export_path = path.join(instance_folder, file_name)
+
+        return joblib.load(absolute_export_path)
+
+    @staticmethod
     def save_columns_to_disk(unique_track_uris, instance_id) -> None:
         Logger.log_info("Start saving row columns to {}".format(instance_id))
 

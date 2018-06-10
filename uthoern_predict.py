@@ -6,6 +6,11 @@ from date_time_util import DateTimeUtil
 from playlist_parser import PlaylistParser
 from playlist_slice_converter import PlaylistSliceConverter
 from model_util import ModelUtil
+from ranging_matrix_factory import RangingMatrixFactory
+from track_filter import TrackFilter
+from sklearn.decomposition import TruncatedSVD
+from scipy import sparse
+import numpy as np
 
 challenge_set_file_name = "challenge_set.json"
 
@@ -16,25 +21,31 @@ def __predict_model(abs_challenge_set_path: str, abs_model_path: str, model_inst
 
     # Load challange set
     file_collection = PlaylistParser.parse_folder(abs_challenge_set_path, challenge_set_file_name)
-
-    slices = PlaylistSliceConverter.from_json_files(file_collection)
-
-    # Lade columns
     unique_track_uris = ModelUtil.load_columns_from_disk(abs_model_path, model_instance_id)
+    selector = ModelUtil.load_from_disk(model_instance_id, 'TruncatedSVD', '')
 
-    print("hello")
+    p_slices = PlaylistSliceConverter.from_json_files(file_collection)
+
     # iteriere über challange set Batch
+    for p_slice in p_slices:
+        p_slice_unique_track_uris, sparse_challenge_matrix, template_challenge_matrix = RangingMatrixFactory.create_sparse_challenge_set(
+            p_slice, unique_track_uris)
 
-    # Erstelle panda Dataframe
+        # Reduce dimension
+        X_sparse = selector.transform(sparse_challenge_matrix)
 
-    # Iteriere über columns
-    # Lade model mit column name
+        # Iteriere über columns
+        for column_index, target_column in enumerate(unique_track_uris):
+            reg = ModelUtil.load_from_disk(model_instance_id, 'Ridge', target_column)
 
-    # Predict value
+            # Predict value
+            predicted_column = reg.predict(X_sparse)
 
-    # Schreibe Ihn zurück
+            for row_index, row in predicted_column:
+                if template_challenge_matrix[row_index, column_index] != 1:
+                    sparse_challenge_matrix[row_index, column_index] = predicted_column[row_index]
 
-    # Exportiere vorhersage in CSV für Batch
+        print(sparse_challenge_matrix)
 
 
 def __receive_path_argument():

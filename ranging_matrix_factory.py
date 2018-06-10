@@ -7,12 +7,13 @@ from playlist_util import PlaylistUtil
 from track_filter import TrackFilter
 import pandas as pd
 from playlist_slice_converter import PlaylistSliceConverter
+from playlist import Playlist
 
 
 class RangingMatrixFactory:
 
     @staticmethod
-    def create(file_collection: List[str], pids:int):
+    def create(file_collection: List[str], pids: int):
         template_ranging_matrix, unique_track_uris = RangingMatrixFactory._create_template(file_collection);
 
         template_ranging_matrix = RangingMatrixFactory._reduce_dimension(template_ranging_matrix, pids)
@@ -63,3 +64,28 @@ class RangingMatrixFactory:
         Logger.log_info('Finishing initialization of ranging data frame')
 
         return template_ranging_matrix, unique_track_uris
+
+    @staticmethod
+    def create_sparse_challenge_set(p_slice, unique_track_uris):
+        total_number_of_playlist = PlaylistUtil.count_playlists_of_slices([p_slice])
+
+        x_number = len(unique_track_uris)
+        y_number = total_number_of_playlist
+
+        Logger.log_info('Matrixdimension: x=' + str(x_number) + '; y=' + str(y_number))
+        template_challenge_matrix = sparse.dok_matrix((y_number, x_number), dtype=np.float32)
+
+        for playlist in p_slice.get_playlist_collection():
+            playlist_id = playlist.get_pid()
+
+            for track in playlist.get_tracks():
+                track_index = unique_track_uris[track.get_simplified_uri()]
+
+                template_challenge_matrix[playlist_id, track_index] = 1.0
+
+        Logger.log_info(
+            'Slice[' + p_slice.get_info().get_item_range() + '] ratings successfully insert into challenge matrix')
+
+        Logger.log_info('Finishing initialization of challenge data frame')
+
+        return template_challenge_matrix, template_challenge_matrix.copy()
