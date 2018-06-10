@@ -8,7 +8,7 @@ from typing import List
 class PlaylistParser:
 
     @staticmethod
-    def parse_folder(absolute_folder_path: str) -> List[str]:
+    def parse_folder(absolute_folder_path: str, file_name_pattern) -> List[str]:
         Logger.log_info('Start parsing folder: ' + absolute_folder_path)
 
         normalized_path = os.path.normpath(absolute_folder_path)
@@ -20,7 +20,7 @@ class PlaylistParser:
 
         files = []
         for file_name in file_names:
-            if re.match('mpd\.slice\.\d+\-\d+\.json', file_name):
+            if re.match(file_name_pattern, file_name):
                 absolute_file_name = os.path.join(normalized_path, file_name)
                 files.append(absolute_file_name)
 

@@ -18,12 +18,14 @@ from sklearn.feature_selection import VarianceThreshold
 import pandas as pd
 import csv
 
+mpd_pattern = 'mpd\.slice\.\d+\-\d+\.json'
+
 
 def train_model(absolute_train_data_path: str, pids: int):
     instance_id = DateTimeUtil.generate_timestamp_id()
     Logger.log_info("Start train model instance '{}'".format(instance_id))
 
-    file_collection = PlaylistParser.parse_folder(absolute_train_data_path)
+    file_collection = PlaylistParser.parse_folder(absolute_train_data_path, mpd_pattern)
 
     unique_track_uris, sparse_ranging_matrix, template_ranging_matrix = RangingMatrixFactory.create(file_collection,
                                                                                                     pids)
