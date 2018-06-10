@@ -19,6 +19,7 @@ import pandas as pd
 import csv
 
 
+
 def train_model(absolute_train_data_path: str, pids: int):
     instance_id = DateTimeUtil.generate_timestamp_id()
     Logger.log_info("Start train model instance '{}'".format(instance_id))
@@ -69,21 +70,15 @@ def train_model(absolute_train_data_path: str, pids: int):
             for row_index, row in X_test.iterrows():
                 if template_ranging_matrix[row_index, column_index] != 1:
                     sparse_ranging_matrix[row_index, column_index] = predicted_column[i]
-                    i = i + 1
+
+                i = i + 1
 
             Logger.log_info('Finish writing predicted values into rating matrix')
 
             Logger.log_info("Score Trainingsdatensatz: {:.2f}".format(reg_train.score(X_train, y_train)))
             Logger.log_info("Score Testdatensatz: {:.2f}".format(reg.score(X_test, y_test)))
 
-    Logger.log_info("Start saving row columns to {}".format(instance_id))
-    with open('{}_columns.csv'.format(instance_id), 'wb') as f:
-        writer = csv.writer(f)
-        writer.writerow(unique_track_uris.keys())
-        writer.writerow(unique_track_uris.values())
-        writer.close()
-
-    Logger.log_info("Finishing saving row columns")
+    ModelUtil.save_columns_to_disk(unique_track_uris, instance_id)
 
     Logger.log_info("Finish train model instance '{}'".format(instance_id))
 

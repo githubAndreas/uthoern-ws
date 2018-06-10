@@ -1,6 +1,7 @@
 from sklearn.externals import joblib
 from os import path, makedirs
 from logger import Logger
+import csv
 
 
 class ModelUtil:
@@ -23,3 +24,15 @@ class ModelUtil:
 
         joblib.dump(model, absolute_export_path)
         Logger.log_info('Save model to disk successfully finished')
+
+
+    @staticmethod
+    def save_columns_to_disk(unique_track_uris, instance_id):
+        Logger.log_info("Start saving row columns to {}".format(instance_id))
+
+        with open('{}_columns.csv'.format(instance_id), 'w') as csv_file:
+            writer = csv.writer(csv_file)
+            for key, value in unique_track_uris.items():
+                writer.writerow([value, key])
+
+        Logger.log_info("Finishing saving row columns")
