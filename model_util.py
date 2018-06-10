@@ -25,9 +25,8 @@ class ModelUtil:
         joblib.dump(model, absolute_export_path)
         Logger.log_info('Save model to disk successfully finished')
 
-
     @staticmethod
-    def save_columns_to_disk(unique_track_uris, instance_id):
+    def save_columns_to_disk(unique_track_uris, instance_id) -> None:
         Logger.log_info("Start saving row columns to {}".format(instance_id))
 
         with open('{}_columns.csv'.format(instance_id), 'w') as csv_file:
@@ -36,3 +35,15 @@ class ModelUtil:
                 writer.writerow([value, key])
 
         Logger.log_info("Finishing saving row columns")
+
+    @staticmethod
+    def load_columns_from_disk(norm_model_path: str, instance_id: int):
+        unique_track_uris = {}
+        absolute_file_path = path.join(norm_model_path, '{}_columns.csv'.format(instance_id))
+        reader = csv.reader(open(absolute_file_path, 'r'))
+        for row in reader:
+            if len(row) == 2:
+                value, key = row
+                unique_track_uris[key] = value
+
+        return unique_track_uris
