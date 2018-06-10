@@ -19,7 +19,6 @@ import pandas as pd
 import csv
 
 
-
 def train_model(absolute_train_data_path: str, pids: int):
     instance_id = DateTimeUtil.generate_timestamp_id()
     Logger.log_info("Start train model instance '{}'".format(instance_id))
