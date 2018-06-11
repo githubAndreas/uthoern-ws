@@ -51,14 +51,14 @@ def __predict_model(abs_challenge_set_path: str, abs_model_path: str, model_inst
             Logger.log_info("Finish prediction")
 
             Logger.log_info("Start rewriting predicted values into matrix")
-            """for row_index, row in enumerate(predicted_column): TODO AHU Kommentar entfernen und beschleunigen
-                if template_sparse_challenge_matrix[row_index, column_index] != 1.0:
-                    sparse_challenge_matrix[row_index, column_index] = row"""
+            template_column_array = template_sparse_challenge_matrix[:, column_index].toarray()
+            predicted_column[template_column_array] = 1.0
+            sparse_challenge_matrix[:, column_index] = predicted_column
             Logger.log_info("Finishing rewriting predicted values into matrix")
 
         for row_index in range(sparse_challenge_matrix.shape[0]):
-            sparse_row = sparse_challenge_matrix.getrow(row_index).toarray()
-            template_row = template_sparse_challenge_matrix.getrow(row_index).toarray()
+            sparse_row = sparse_challenge_matrix[row_index,:].toarray()
+            template_row = template_sparse_challenge_matrix[row_index,:].toarray()
 
             sparse_row_df = pd.DataFrame(data=sparse_row, columns=unique_track_uris, dtype=np.float32)
 
