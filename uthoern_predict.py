@@ -11,6 +11,7 @@ from track_filter import TrackFilter
 from sklearn.decomposition import TruncatedSVD
 from scipy import sparse
 import numpy as np
+import pandas as pd
 
 challenge_set_file_name = "challenge_set.json"
 
@@ -28,24 +29,41 @@ def __predict_model(abs_challenge_set_path: str, abs_model_path: str, model_inst
 
     # iteriere über challange set Batch
     for p_slice in p_slices:
-        p_slice_unique_track_uris, sparse_challenge_matrix, template_challenge_matrix = RangingMatrixFactory.create_sparse_challenge_set(
+        sparse_challenge_matrix, template_sparse_challenge_matrix = RangingMatrixFactory.create_sparse_challenge_set(
             p_slice, unique_track_uris)
 
-        # Reduce dimension
+        Logger.log_info("Start reducing dimension")
         X_sparse = selector.transform(sparse_challenge_matrix)
+        Logger.log_info("Finishing reducing dimension")
 
         # Iteriere über columns
-        for column_index, target_column in enumerate(unique_track_uris):
-            reg = ModelUtil.load_from_disk(model_instance_id, 'Ridge', target_column)
+        Logger.log_info("Start iterate ofer columns")
+        for column_index, track_url in enumerate(unique_track_uris):
+            Logger.log_info(
+                "Column [{}/{}] - {} start".format(str(column_index), str(len(unique_track_uris)), track_url))
 
-            # Predict value
+            Logger.log_info("Start loading prediction model from disk")
+            reg = ModelUtil.load_from_disk(model_instance_id, 'Ridge', track_url)
+            Logger.log_info("Finish loading prediction model from disk")
+
+            Logger.log_info("Start prediction")
             predicted_column = reg.predict(X_sparse)
+            Logger.log_info("Finish prediction")
 
-            for row_index, row in predicted_column:
-                if template_challenge_matrix[row_index, column_index] != 1:
-                    sparse_challenge_matrix[row_index, column_index] = predicted_column[row_index]
+            Logger.log_info("Start rewriting predicted values into matrix")
+            """for row_index, row in enumerate(predicted_column): TODO AHU Kommentar entfernen und beschleunigen
+                if template_sparse_challenge_matrix[row_index, column_index] != 1.0:
+                    sparse_challenge_matrix[row_index, column_index] = row"""
+            Logger.log_info("Finishing rewriting predicted values into matrix")
 
-        print(sparse_challenge_matrix)
+        for row_index in range(sparse_challenge_matrix.shape[0]):
+            sparse_row = sparse_challenge_matrix.getrow(row_index).toarray()
+            template_row = template_sparse_challenge_matrix.getrow(row_index).toarray()
+
+            sparse_row_df = pd.DataFrame(data=sparse_row, columns=unique_track_uris, dtype=np.float32)
+
+            for column_index in range(template_row.shape[1]):
+                sparse_row_df  # TODO AHU hier weiter die Spaltenwerte auf einen weiten negativen Wert setzen
 
 
 def __receive_path_argument():

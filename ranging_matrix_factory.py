@@ -75,13 +75,14 @@ class RangingMatrixFactory:
         Logger.log_info('Matrixdimension: x=' + str(x_number) + '; y=' + str(y_number))
         template_challenge_matrix = sparse.dok_matrix((y_number, x_number), dtype=np.float32)
 
-        for playlist in p_slice.get_playlist_collection():
-            playlist_id = playlist.get_pid()
+        for index, playlist in enumerate(p_slice.get_playlist_collection()):
+            playlist_id = index
 
             for track in playlist.get_tracks():
-                track_index = unique_track_uris[track.get_simplified_uri()]
-
-                template_challenge_matrix[playlist_id, track_index] = 1.0
+                simple_url = track.get_simplified_uri()
+                if simple_url in unique_track_uris:  # TODO AHU Wieder entfernen nach Test
+                    track_index = unique_track_uris[track.get_simplified_uri()]
+                    template_challenge_matrix[playlist_id, int(track_index)] = 1.0
 
         Logger.log_info(
             'Slice[' + p_slice.get_info().get_item_range() + '] ratings successfully insert into challenge matrix')
