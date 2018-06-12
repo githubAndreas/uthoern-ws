@@ -29,8 +29,10 @@ def __predict_model(abs_challenge_set_path: str, abs_model_path: str, model_inst
 
     # iteriere über challange set Batch
     for p_slice in p_slices:
-        sparse_challenge_matrix, template_sparse_challenge_matrix = RangingMatrixFactory.create_sparse_challenge_set(
+        sparse_challenge_matrix, template_sparse_challenge_matrix, pids = RangingMatrixFactory.create_sparse_challenge_set(
             p_slice, unique_track_uris)
+
+        recommentation_dict = {}
 
         Logger.log_info("Start reducing dimension")
         X_sparse = selector.transform(sparse_challenge_matrix)
@@ -57,14 +59,32 @@ def __predict_model(abs_challenge_set_path: str, abs_model_path: str, model_inst
             Logger.log_info("Finishing rewriting predicted values into matrix")
 
         for row_index in range(sparse_challenge_matrix.shape[0]):
-            sparse_row = sparse_challenge_matrix[row_index,:].toarray()
-            template_row = template_sparse_challenge_matrix[row_index,:].toarray()
+            Logger.log_info("Start recommendation for {}".format(str(row_index)))
+            sparse_row = sparse_challenge_matrix[row_index, :].toarray()
+            template_row = template_sparse_challenge_matrix[row_index, :]
+            template_row_array = template_row.toarray()
 
             sparse_row_df = pd.DataFrame(data=sparse_row, columns=unique_track_uris, dtype=np.float32)
 
-            for column_index in range(template_row.shape[1]):
-                sparse_row_df  # TODO AHU hier weiter die Spaltenwerte auf einen weiten negativen Wert setzen
+            all_columns = sparse_row_df.columns.values
 
+            selected_columns = all_columns[template_row_array[0, :]]
+
+            minimized_df = sparse_row_df.drop(selected_columns)
+
+            transpose_df = minimized_df.T
+
+            sorted_df = transpose_df.sort_values(by=0, ascending=False)
+
+            transpose_df2 = sorted_df.T
+
+            recommendation = transpose_df2.columns.values[:500]
+
+            recommentation_dict[pids[row_index]] = recommendation
+            Logger.log_info("Finish recommendation for {}".format(str(row_index)))
+
+
+        print(recommentation_dict)
 
 def __receive_path_argument():
     """Read path from command line arguments"""

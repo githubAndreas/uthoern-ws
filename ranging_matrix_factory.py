@@ -75,9 +75,11 @@ class RangingMatrixFactory:
         Logger.log_info('Matrixdimension: x=' + str(x_number) + '; y=' + str(y_number))
         challenge_matrix = sparse.dok_matrix((y_number, x_number), dtype=np.float32)
         template_challenge_matrix = sparse.dok_matrix((y_number, x_number), dtype=np.bool)
+        pids = []
 
         for index, playlist in enumerate(p_slice.get_playlist_collection()):
             playlist_id = index
+            pids.append(playlist_id);
 
             for track in playlist.get_tracks():
                 simple_url = track.get_simplified_uri()
@@ -91,4 +93,4 @@ class RangingMatrixFactory:
 
         Logger.log_info('Finishing initialization of challenge data frame')
 
-        return challenge_matrix, template_challenge_matrix
+        return challenge_matrix, template_challenge_matrix, pids
