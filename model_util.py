@@ -40,7 +40,13 @@ class ModelUtil:
     def save_columns_to_disk(unique_track_uris, instance_id) -> None:
         Logger.log_info("Start saving row columns to {}".format(instance_id))
 
-        with open('{}_columns.csv'.format(instance_id), 'w') as csv_file:
+        instance_folder = path.join(path.abspath(ModelUtil.MODEL_STORAGE), instance_id)
+        if not path.exists(instance_folder):
+            makedirs(instance_folder)
+
+        absolute_export_path = path.join(instance_folder, '{}_columns.csv'.format(instance_id))
+
+        with open(absolute_export_path, 'w') as csv_file:
             writer = csv.writer(csv_file)
             for key, value in unique_track_uris.items():
                 writer.writerow([value, key])
