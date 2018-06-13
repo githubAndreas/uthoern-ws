@@ -2,6 +2,7 @@ import pandas as pd
 import csv
 from os import path
 from date_time_util import DateTimeUtil
+import numpy as np
 
 
 class DataFrameUtil:
@@ -18,7 +19,7 @@ class DataFrameUtil:
     CSV_HEADER = ['team_info', TEAM, CHALLENGE_TRACK, CONTACT_INFORMATION]
 
     @staticmethod
-    def export_to_csv(df: pd.DataFrame, rel_path: str) -> None:
+    def export_to_csv(recommentation_dict, rel_path: str) -> None:
         absolute_export_path = path.abspath(rel_path)
         file_name = DataFrameUtil.__create_export_file_name(absolute_export_path)
 
@@ -26,8 +27,9 @@ class DataFrameUtil:
             writer = csv.writer(csv_file)
             writer.writerow(DataFrameUtil.CSV_HEADER)
 
-            for row_index, row in df.iterrows():
-                writer.writerow((row_index, row.values))
+            for pid, recomm_array in recommentation_dict.items():
+                row = np.append(np.array(str(pid)), recomm_array)
+                writer.writerow(row)
 
             csv_file.close()
 

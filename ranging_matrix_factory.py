@@ -66,30 +66,27 @@ class RangingMatrixFactory:
         return template_ranging_matrix, unique_track_uris
 
     @staticmethod
-    def create_sparse_challenge_set(p_slice, unique_track_uris):
-        total_number_of_playlist = PlaylistUtil.count_playlists_of_slices([p_slice])
-
+    def create_sparse_challenge_set(chunk, item_range, unique_track_uris, total_number_of_playlist):
         x_number = len(unique_track_uris)
         y_number = total_number_of_playlist
 
         Logger.log_info('Matrixdimension: x=' + str(x_number) + '; y=' + str(y_number))
         challenge_matrix = sparse.dok_matrix((y_number, x_number), dtype=np.float32)
         template_challenge_matrix = sparse.dok_matrix((y_number, x_number), dtype=np.bool)
-        pids = []
+        pids = {}
 
-        for index, playlist in enumerate(p_slice.get_playlist_collection()):
-            playlist_id = index
-            pids.append(playlist_id);
+        for index, playlist in enumerate(chunk):
+            pids[index] = playlist.get_pid()
 
             for track in playlist.get_tracks():
                 simple_url = track.get_simplified_uri()
                 if simple_url in unique_track_uris:  # TODO AHU Wieder entfernen nach Test
                     track_index = unique_track_uris[track.get_simplified_uri()]
-                    challenge_matrix[playlist_id, int(track_index)] = 1.0
-                    template_challenge_matrix[playlist_id, int(track_index)] = True
+                    challenge_matrix[index, int(track_index)] = 1.0
+                    template_challenge_matrix[index, int(track_index)] = True
 
         Logger.log_info(
-            'Slice[' + p_slice.get_info().get_item_range() + '] ratings successfully insert into challenge matrix')
+            'Slice[' + item_range + '] ratings successfully insert into challenge matrix')
 
         Logger.log_info('Finishing initialization of challenge data frame')
 

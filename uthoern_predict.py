@@ -12,6 +12,8 @@ from sklearn.decomposition import TruncatedSVD
 from scipy import sparse
 import numpy as np
 import pandas as pd
+from data_frame_util import DataFrameUtil
+from playlist_util import PlaylistUtil
 
 challenge_set_file_name = "challenge_set.json"
 
@@ -29,62 +31,71 @@ def __predict_model(abs_challenge_set_path: str, abs_model_path: str, model_inst
 
     # iteriere über challange set Batch
     for p_slice in p_slices:
-        sparse_challenge_matrix, template_sparse_challenge_matrix, pids = RangingMatrixFactory.create_sparse_challenge_set(
-            p_slice, unique_track_uris)
+        total_number_of_playlist = PlaylistUtil.count_playlists_of_slices([p_slice])
+        item_range = p_slice.get_info().get_item_range()
+        chunk_count = 0
+        for chunk in np.array_split(p_slice.get_playlist_collection(), 10):
+            chunk_count = chunk_count + 1
+            sparse_challenge_matrix, template_sparse_challenge_matrix, pids = RangingMatrixFactory.create_sparse_challenge_set(
+                chunk, item_range, unique_track_uris, len(chunk))
 
-        recommentation_dict = {}
+            recommentation_dict = {}
 
-        Logger.log_info("Start reducing dimension")
-        X_sparse = selector.transform(sparse_challenge_matrix)
-        Logger.log_info("Finishing reducing dimension")
+            Logger.log_info("Start reducing dimension")
+            X_sparse = selector.transform(sparse_challenge_matrix)
+            Logger.log_info("Finishing reducing dimension")
 
-        # Iteriere über columns
-        Logger.log_info("Start iterate ofer columns")
-        for column_index, track_url in enumerate(unique_track_uris):
-            Logger.log_info(
-                "Column [{}/{}] - {} start".format(str(column_index), str(len(unique_track_uris)), track_url))
+            # Iteriere über columns
+            Logger.log_info("Start iterate ofer columns")
+            for column_index, track_url in enumerate(unique_track_uris):
+                Logger.log_info(
+                    "Chunk[{}] - Column [{}/{}] - {} start".format(str(chunk_count), str(column_index),
+                                                                   str(len(unique_track_uris)), track_url))
 
-            Logger.log_info("Start loading prediction model from disk")
-            reg = ModelUtil.load_from_disk(model_instance_id, 'Ridge', track_url)
-            Logger.log_info("Finish loading prediction model from disk")
+                Logger.log_info("Start loading prediction model from disk")
+                reg = ModelUtil.load_from_disk(model_instance_id, 'Ridge', track_url)
+                Logger.log_info("Finish loading prediction model from disk")
 
-            Logger.log_info("Start prediction")
-            predicted_column = reg.predict(X_sparse)
-            Logger.log_info("Finish prediction")
+                Logger.log_info("Start prediction")
+                predicted_column = reg.predict(X_sparse)
+                Logger.log_info("Finish prediction")
 
-            Logger.log_info("Start rewriting predicted values into matrix")
-            template_column_array = template_sparse_challenge_matrix[:, column_index].toarray()
-            predicted_column[template_column_array] = 1.0
-            sparse_challenge_matrix[:, column_index] = predicted_column
-            Logger.log_info("Finishing rewriting predicted values into matrix")
+                Logger.log_info("Start rewriting predicted values into matrix")
+                template_column_array = template_sparse_challenge_matrix[:, column_index].toarray()
+                predicted_column[template_column_array] = 1.0
+                sparse_challenge_matrix[:, column_index] = predicted_column
+                Logger.log_info("Finishing rewriting predicted values into matrix")
 
-        for row_index in range(sparse_challenge_matrix.shape[0]):
-            Logger.log_info("Start recommendation for {}".format(str(row_index)))
-            sparse_row = sparse_challenge_matrix[row_index, :].toarray()
-            template_row = template_sparse_challenge_matrix[row_index, :]
-            template_row_array = template_row.toarray()
+            print(sparse_challenge_matrix)
+            for row_index in range(sparse_challenge_matrix.shape[0]):
+                Logger.log_info(
+                    "Start recommendation for {}/{}".format(str(row_index), str(sparse_challenge_matrix.shape[0])))
+                sparse_row = sparse_challenge_matrix[row_index, :].toarray()
+                template_row = template_sparse_challenge_matrix[row_index, :]
+                template_row_array = template_row.toarray()
 
-            sparse_row_df = pd.DataFrame(data=sparse_row, columns=unique_track_uris, dtype=np.float32)
+                sparse_row_df = pd.DataFrame(data=sparse_row, columns=unique_track_uris, dtype=np.float32)
 
-            all_columns = sparse_row_df.columns.values
+                all_columns = sparse_row_df.columns.values
 
-            selected_columns = all_columns[template_row_array[0, :]]
+                selected_columns = all_columns[template_row_array[0, :]]
 
-            minimized_df = sparse_row_df.drop(selected_columns)
+                sparse_row_df = sparse_row_df.drop(selected_columns)
 
-            transpose_df = minimized_df.T
+                sparse_row_df = sparse_row_df.T
 
-            sorted_df = transpose_df.sort_values(by=0, ascending=False)
+                sparse_row_df = sparse_row_df.sort_values(by=0, ascending=False)
 
-            transpose_df2 = sorted_df.T
+                sparse_row_df = sparse_row_df.T
 
-            recommendation = transpose_df2.columns.values[:500]
+                recommendation = sparse_row_df.columns.values[:500]
 
-            recommentation_dict[pids[row_index]] = recommendation
-            Logger.log_info("Finish recommendation for {}".format(str(row_index)))
+                recomm_pid = pids[row_index]
+                recommentation_dict[recomm_pid] = recommendation
+                Logger.log_info("Finish recommendation for {}".format(str(row_index)))
 
+    DataFrameUtil.export_to_csv(recommentation_dict, './model_storage/{}'.format(str(model_instance_id)))
 
-        print(recommentation_dict)
 
 def __receive_path_argument():
     """Read path from command line arguments"""
