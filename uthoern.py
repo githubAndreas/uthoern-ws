@@ -28,9 +28,8 @@ def train_model(absolute_train_data_path: str, pids: int):
 
     file_collection = PlaylistParser.parse_folder(absolute_train_data_path, mpd_pattern)
 
-    unique_track_uris, sparse_ranging_matrix, template_ranging_matrix = RangingMatrixFactory.create(file_collection,
-                                                                                                    pids)
-
+    unique_track_uris, sparse_ranging_matrix, ranging_bool_mask = RangingMatrixFactory.create(file_collection,
+                                                                                              pids)
     number_of_iterations = 1
     Logger.log_info('Configured number of complete iterations: {}'.format(number_of_iterations))
 
@@ -74,7 +73,7 @@ def train_model(absolute_train_data_path: str, pids: int):
             Logger.log_info('Start writing predicted values into rating matrix')
             i = 0
             for row_index, row in X_test.iterrows():
-                if template_ranging_matrix[row_index, column_index] != 1:
+                if ranging_bool_mask[row_index, column_index]:
                     sparse_ranging_matrix[row_index, column_index] = predicted_column[i]
 
                 i = i + 1
