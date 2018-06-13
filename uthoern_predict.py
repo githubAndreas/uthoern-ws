@@ -29,6 +29,8 @@ def __predict_model(abs_challenge_set_path: str, abs_model_path: str, model_inst
 
     p_slices = PlaylistSliceConverter.from_json_files(file_collection)
 
+    model_dict = ModelUtil.load_dict_from_disk(model_instance_id, 'Ridge', unique_track_uris)
+
     # iteriere über challange set Batch
     for p_slice in p_slices:
         total_number_of_playlist = PlaylistUtil.count_playlists_of_slices([p_slice])
@@ -49,24 +51,16 @@ def __predict_model(abs_challenge_set_path: str, abs_model_path: str, model_inst
             Logger.log_info("Start iterate ofer columns")
             for column_index, track_url in enumerate(unique_track_uris):
                 Logger.log_info(
-                    "Chunk[{}] - Column [{}/{}] - {} start".format(str(chunk_count), str(column_index),
-                                                                   str(len(unique_track_uris)), track_url))
+                    "Chunk[{}] - Column [{}/{}] - {} predict".format(str(chunk_count), str(column_index),
+                                                                     str(len(unique_track_uris)), track_url))
 
-                Logger.log_info("Start loading prediction model from disk")
-                reg = ModelUtil.load_from_disk(model_instance_id, 'Ridge', track_url)
-                Logger.log_info("Finish loading prediction model from disk")
-
-                Logger.log_info("Start prediction")
+                reg = model_dict[track_url]
                 predicted_column = reg.predict(X_sparse)
-                Logger.log_info("Finish prediction")
 
-                Logger.log_info("Start rewriting predicted values into matrix")
                 template_column_array = template_sparse_challenge_matrix[:, column_index].toarray()
                 predicted_column[template_column_array] = 1.0
                 sparse_challenge_matrix[:, column_index] = predicted_column
-                Logger.log_info("Finishing rewriting predicted values into matrix")
 
-            print(sparse_challenge_matrix)
             for row_index in range(sparse_challenge_matrix.shape[0]):
                 Logger.log_info(
                     "Start recommendation for {}/{}".format(str(row_index), str(sparse_challenge_matrix.shape[0])))

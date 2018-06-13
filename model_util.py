@@ -37,6 +37,23 @@ class ModelUtil:
         return joblib.load(absolute_export_path)
 
     @staticmethod
+    def load_dict_from_disk(instance_id: int, model_type: str, unique_track_uris):
+        Logger.log_info("Start loading models")
+        model_dict = {}
+        for column in unique_track_uris:
+            file_name = '{}_{}_{}.{}'.format(instance_id, model_type, column,
+                                             ModelUtil.FILE_TYPE)
+
+            instance_folder = path.join(path.abspath(ModelUtil.MODEL_STORAGE), str(instance_id))
+
+            absolute_export_path = path.join(instance_folder, file_name)
+
+            model_dict[column] = joblib.load(absolute_export_path)
+
+        Logger.log_info("Finishing loading models")
+        return model_dict
+
+    @staticmethod
     def save_columns_to_disk(unique_track_uris, instance_id) -> None:
         Logger.log_info("Start saving row columns to {}".format(instance_id))
 
