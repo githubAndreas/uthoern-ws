@@ -71,12 +71,11 @@ def train_model(absolute_train_data_path: str, pids: int):
                 ModelUtil.save_to_disk(reg, instance_id, 'Ridge', target_column)
 
             Logger.log_info('Start writing predicted values into rating matrix')
-            i = 0
-            for row_index, row in X_test.iterrows():
-                if ranging_bool_mask[row_index, column_index]:
-                    sparse_ranging_matrix[row_index, column_index] = predicted_column[i]
 
-                i = i + 1
+            row_indexes = X_test.index.values
+            filtered_mask = (ranging_bool_mask[row_indexes, column_index]).toarray()
+            predicted_column[filtered_mask] = 1.0
+            sparse_ranging_matrix[row_indexes, column_index] = predicted_column
 
             Logger.log_info('Finish writing predicted values into rating matrix')
 
