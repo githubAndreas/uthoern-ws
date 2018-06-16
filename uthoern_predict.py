@@ -39,7 +39,7 @@ def __predict_model(abs_challenge_set_path: str, abs_model_path: str, model_inst
         item_range = p_slice.get_info().get_item_range()
         chunk_count = 0
 
-        for chunk in np.array_split(p_slice.get_playlist_collection(), 10):
+        for chunk in np.array_split(p_slice.get_playlist_collection(), 1):
             chunk_count = chunk_count + 1
             sparse_challenge_matrix, template_sparse_challenge_matrix, pids = RangingMatrixFactory.create_sparse_challenge_set(
                 chunk, item_range, unique_track_uris, len(chunk))
