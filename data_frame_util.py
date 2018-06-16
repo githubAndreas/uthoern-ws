@@ -28,7 +28,7 @@ class DataFrameUtil:
             writer.writerow(DataFrameUtil.CSV_HEADER)
 
             for pid, recomm_array in recommentation_dict.items():
-                row = np.append(np.array(str(pid)), recomm_array)
+                row = np.append(np.array(str(pid)), [" " + DataFrameUtil.URL_PREFIX + s for s in recomm_array])
                 writer.writerow(row)
 
             csv_file.close()
