@@ -85,7 +85,7 @@ def __predict_model(abs_challenge_set_path: str, abs_model_path: str, model_inst
 
                 recommendation = sparse_row_df.columns.values[:500]
 
-                recomm_pid = pids[row_index] # Fehler !!!!
+                recomm_pid = pids[row_index]
                 recommentation_dict[recomm_pid] = recommendation
                 Logger.log_info("Finish recommendation for {}".format(str(row_index)))
 
