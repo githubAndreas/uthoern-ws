@@ -2,17 +2,14 @@ from logger import Logger
 from argparse import ArgumentParser
 from os import path
 import sys
-from date_time_util import DateTimeUtil
+from business.date_time_util import DateTimeUtil
 from playlist_parser import PlaylistParser
 from playlist_slice_converter import PlaylistSliceConverter
 from model_util import ModelUtil
 from ranging_matrix_factory import RangingMatrixFactory
-from track_filter import TrackFilter
-from sklearn.decomposition import TruncatedSVD
-from scipy import sparse
 import numpy as np
 import pandas as pd
-from data_frame_util import DataFrameUtil
+from business.data_frame_util import DataFrameUtil
 from playlist_util import PlaylistUtil
 
 challenge_set_file_name = "challenge_set.json"

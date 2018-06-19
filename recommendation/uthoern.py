@@ -2,22 +2,16 @@ from logger import Logger
 from playlist_parser import PlaylistParser
 
 from ranging_matrix_factory import RangingMatrixFactory
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn.linear_model import LinearRegression, Ridge, Lasso, BayesianRidge
-from sklearn.svm import SVR
+from sklearn.linear_model import Ridge
 import numpy as np
 from sklearn.model_selection import train_test_split
-import math
-from data_frame_util import DataFrameUtil
-from date_time_util import DateTimeUtil
+from business.date_time_util import DateTimeUtil
 from model_util import ModelUtil
 import sys
 from argparse import ArgumentParser
 from os import path
-from sklearn.feature_selection import VarianceThreshold
 from sklearn.decomposition import TruncatedSVD
 import pandas as pd
-import csv
 
 mpd_pattern = 'mpd\.slice\.\d+\-\d+\.json'
 
