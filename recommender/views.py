@@ -1,7 +1,7 @@
 from django.shortcuts import render
 
 from .forms import PreparationControlForm
-from .models import Environment
+from .models import Environment, Preparation_Session
 
 
 # Create your views here.
@@ -18,7 +18,8 @@ def dataset(request):
             preparation_session.save()
 
     preparation_control_form = PreparationControlForm()
-    context = {'preparation_control_form': preparation_control_form}
+    context = {'preparation_control_form': preparation_control_form,
+               'preparation_sessions': Preparation_Session.objects.all()}
 
     return render(request, 'recommender/dataset.html', context)
 
