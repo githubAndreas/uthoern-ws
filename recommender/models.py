@@ -14,20 +14,12 @@ class Environment(models.Model):
 class Decomposition(models.Model):
     name = models.CharField(max_length=50)
 
-
-class DecompositionConfiguration(models.Model):
-    key = models.CharField(max_length=200)
-    value = models.CharField(max_length=200)
+    def __str__(self):
+        return self.name
 
 
-class DecompositionSession(models.Model):
-    decomposition = models.ForeignKey(Decomposition, on_delete=models.PROTECT)
-    decomposition_configuration = models.ForeignKey(DecompositionConfiguration, on_delete=models.CASCADE)
-
-
-class PreparationSession(models.Model):
+class Preparation_Session(models.Model):
     environment = models.ForeignKey(Environment, on_delete=models.PROTECT)
-    decomposition_session = models.ForeignKey(DecompositionSession, on_delete=models.CASCADE)
+    decomposition = models.ForeignKey(Decomposition, on_delete=models.PROTECT)
     status = models.CharField(max_length=20)
-    init_slices = models.IntegerField()
-    init_pids = models.IntegerField()
+    initial_pids = models.IntegerField()
