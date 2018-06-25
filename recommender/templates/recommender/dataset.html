@@ -12,28 +12,28 @@
                     <!-- Title -->
                     <h5 class="card-title">Übersicht</h5>
 
-
                     {% if preparation_sessions %}
-                    {% for session in preparation_sessions %}
-                    <div class="accordion" id="accordionExample">
+                    <div class="accordion" id="preparation-sessions-accordion">
+                        {% for session in preparation_sessions %}
                         <div class="card">
-                            <div class="card-header" id="headingOne">
+                            <div class="card-header" id="heading{{session.id}}">
                                 <h5 class="mb-0">
                                     <button class="btn btn-link" type="button" data-toggle="collapse"
-                                            data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                            data-target="#collapse{{session.id}}" aria-expanded="true" aria-controls="collapse{{session.id}}">
                                         #{{session.id}} - {{session.status}}
                                     </button>
                                 </h5>
                             </div>
-                            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
-                                 data-parent="#accordionExample">
+                            <div id="collapse{{session.id}}" class="collapse" aria-labelledby="heading{{session.id}}"
+                                 data-parent="#preparation-sessions-accordion">
                                 <div class="card-body">
                                     blub
                                 </div>
                             </div>
                         </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
+
                     {% else %}
                     <div class="alert alert-info" role="alert">
                         Es wurde keine Aufbereitungssession gefunden!

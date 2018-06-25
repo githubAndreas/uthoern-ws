@@ -22,4 +22,5 @@ class Preparation_Session(models.Model):
     environment = models.ForeignKey(Environment, on_delete=models.PROTECT)
     decomposition = models.ForeignKey(Decomposition, on_delete=models.PROTECT)
     status = models.CharField(max_length=20)
-    initial_pids = models.IntegerField()
+    num_initial_pids = models.IntegerField()
+    num_target_features = models.IntegerField()
