@@ -1,7 +1,7 @@
 from django.shortcuts import render
 
 from .forms import PreparationControlForm
-from .models import Environment, Preparation_Session
+from .models import Preparation_Session
 
 
 # Create your views here.
@@ -10,12 +10,7 @@ def dataset(request):
         form = PreparationControlForm(request.POST)
         if form.is_valid():
             preparation_session = form.save(commit=False)
-            preparation_session.status = "IN PROGRESS"
-
-            environment = Environment.objects.get(name__exact='testing')
-
-            preparation_session.environment = environment
-            preparation_session.save()
+            preparation_session.start()
 
     preparation_control_form = PreparationControlForm()
     context = {'preparation_control_form': preparation_control_form,
