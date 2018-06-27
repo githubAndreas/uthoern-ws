@@ -3,6 +3,7 @@ from typing import List
 import numpy as np
 from scipy import sparse
 
+from .logger import Logger
 from .playlist_slice_converter import PlaylistSliceConverter
 from .playlist_util import PlaylistUtil
 from .track_filter import TrackFilter
@@ -18,26 +19,26 @@ class RangingMatrixFactory:
         sparse_ranging_matrix, ranging_bool_mask, RangingMatrixFactory._reduce_dimension(sparse_ranging_matrix,
                                                                                          ranging_bool_mask, pids)
 
-        # Logger.log_info('Create sparse data frame')
+        Logger.log_info('Create sparse data frame')
         return unique_track_uris, sparse_ranging_matrix, ranging_bool_mask
 
     @staticmethod
     def _reduce_dimension(sparse_matrix, ranging_bool_mask, row_numbs):
         shape = sparse_matrix.get_shape()
-        # Logger.log_info('Start reducing dimension of sparse matrix from: x=' + str(shape[1]) + '; y=' + str(shape[0]))
-        # Logger.log_info('Reduce to {} rows'.format(str(row_numbs)))
+        Logger.log_info('Start reducing dimension of sparse matrix from: x=' + str(shape[1]) + '; y=' + str(shape[0]))
+        Logger.log_info('Reduce to {} rows'.format(str(row_numbs)))
 
         new_dim = (row_numbs, shape[1])
         sparse_matrix.resize(new_dim);
         ranging_bool_mask.resize(new_dim);
         shape = sparse_matrix.get_shape()
-        # Logger.log_info('Sparse matrix format after resizing: x=' + str(shape[1]) + '; y=' + str(shape[0]))
+        Logger.log_info('Sparse matrix format after resizing: x=' + str(shape[1]) + '; y=' + str(shape[0]))
 
         return sparse_matrix, ranging_bool_mask
 
     @staticmethod
     def _create_template(file_collection: List[str]):
-        # Logger.log_info('Start creating initial ranging data frame')
+        Logger.log_info('Start creating initial ranging data frame')
 
         slices = PlaylistSliceConverter.from_json_files(file_collection)
 
@@ -47,7 +48,7 @@ class RangingMatrixFactory:
         x_number = len(unique_track_uris)
         y_number = total_number_of_playlist
 
-        # Logger.log_info('Matrixdimension: x=' + str(x_number) + '; y=' + str(y_number))
+        Logger.log_info('Matrixdimension: x=' + str(x_number) + '; y=' + str(y_number))
         sparse_ranging_matrix = sparse.dok_matrix((y_number, x_number), dtype=np.float32)
         ranging_bool_mask = sparse.dok_matrix((y_number, x_number), dtype=np.bool)
 
@@ -61,10 +62,10 @@ class RangingMatrixFactory:
                     sparse_ranging_matrix[playlist_id, track_index] = 1.0
                     ranging_bool_mask[playlist_id, track_index] = True
 
-            # Logger.log_info(
-            # 'Slice[' + p_slice.get_info().get_item_range() + '] ratings successfully insert into ranging matrix')
+            Logger.log_info(
+                'Slice[' + p_slice.get_info().get_item_range() + '] ratings successfully insert into ranging matrix')
 
-        # Logger.log_info('Finishing initialization of ranging data frame')
+        Logger.log_info('Finishing initialization of ranging data frame')
 
         return sparse_ranging_matrix, ranging_bool_mask, unique_track_uris
 
@@ -73,7 +74,7 @@ class RangingMatrixFactory:
         x_number = len(unique_track_uris)
         y_number = total_number_of_playlist
 
-        # Logger.log_info('Matrixdimension: x=' + str(x_number) + '; y=' + str(y_number))
+        Logger.log_info('Matrixdimension: x=' + str(x_number) + '; y=' + str(y_number))
         challenge_matrix = sparse.dok_matrix((y_number, x_number), dtype=np.float32)
         template_challenge_matrix = sparse.dok_matrix((y_number, x_number), dtype=np.bool)
         pids = {}
@@ -88,9 +89,9 @@ class RangingMatrixFactory:
                     challenge_matrix[index, int(track_index)] = 1.0
                     template_challenge_matrix[index, int(track_index)] = True
 
-        # Logger.log_info(
-        # 'Slice[' + item_range + '] ratings successfully insert into challenge matrix')
+        Logger.log_info(
+            'Slice[' + item_range + '] ratings successfully insert into challenge matrix')
 
-        # Logger.log_info('Finishing initialization of challenge data frame')
+        Logger.log_info('Finishing initialization of challenge data frame')
 
         return challenge_matrix, template_challenge_matrix, pids

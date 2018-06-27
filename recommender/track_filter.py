@@ -1,5 +1,6 @@
 from typing import List, Dict
 
+from .logger import Logger
 from .playlist import Playlist
 from .playlist_slice import PlaylistSlice
 
@@ -8,7 +9,7 @@ class TrackFilter:
 
     @staticmethod
     def unique_track_uris_from_playlist_slices(playlist_slices: List[PlaylistSlice]) -> Dict[str, int]:
-        # Logger.log_info('Start collecting unique title urls')
+        Logger.log_info('Start collecting unique title urls')
 
         unique_track_urls = {}
         index_counter = 0;
@@ -24,17 +25,17 @@ class TrackFilter:
                         unique_track_urls[url] = index_counter
                         index_counter = index_counter + 1
 
-            # Logger.log_info('Slice[' + p_slice.get_info().get_item_range() + '] track urls successfully collected')
+            Logger.log_info('Slice[' + p_slice.get_info().get_item_range() + '] track urls successfully collected')
 
-            # Logger.log_info(
-            # 'Totally  unique uris: ' + str(len(unique_track_urls)) + ' from total uris:' + str(
-            # track_counter) + ' founded')
+            Logger.log_info(
+                'Totally  unique uris: ' + str(len(unique_track_urls)) + ' from total uris:' + str(
+                    track_counter) + ' founded')
 
             return unique_track_urls
 
         @staticmethod
         def unique_track_uris_from_playlist(playlist: Playlist) -> Dict[str, int]:
-            # Logger.log_info('Start collecting unique title urls from playlist')
+            Logger.log_info('Start collecting unique title urls from playlist')
 
             unique_track_urls = {}
             index_counter = 0;
@@ -48,10 +49,10 @@ class TrackFilter:
                     unique_track_urls[url] = index_counter
                     index_counter = index_counter + 1
 
-            # Logger.log_info('Playlist[' + str(playlist.get_pid()) + '] track urls successfully collected')
+            Logger.log_info('Playlist[' + str(playlist.get_pid()) + '] track urls successfully collected')
 
-            # Logger.log_info(
-            # 'Totally  unique uris: ' + str(len(unique_track_urls)) + ' from total uris:' + str(
-            #  track_counter) + ' founded')
+            Logger.log_info(
+                'Totally  unique uris: ' + str(len(unique_track_urls)) + ' from total uris:' + str(
+                    track_counter) + ' founded')
 
             return unique_track_urls
