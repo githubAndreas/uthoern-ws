@@ -1,7 +1,14 @@
 import threading
 
+from os import path
 from django.db import models
 
+from .playlist_parser import PlaylistParser
+from .ranging_matrix_factory import RangingMatrixFactory
+from .decomposition_factory import DecompositionFactory
+from .model_util import ModelUtil
+
+from scipy import sparse
 
 class Environment(models.Model):
     name = models.CharField(max_length=10)
@@ -60,10 +67,32 @@ class PreparationThread(threading.Thread):
         preparator.num_target_features = self.__num_features
         preparator.save()
 
-        self.__preparate()
+        self.__preparate(preparator.environment)
 
         preparator.status = "FINISH"
         preparator.save()
 
-    def __preparate(self):
-        pass
+    def __preparate(self, environment: Environment):
+        train_data_path = path.abspath(environment.mdp_set_dir_path)
+
+        file_collection = PlaylistParser.parse_folder(train_data_path, 'mpd\.slice\.\d+\-\d+\.json')
+
+        unique_track_uris, sparse_ranging_matrix, ranging_bool_mask = RangingMatrixFactory.create(file_collection,
+                                                                                                  self.__num_pids)
+
+        selector = DecompositionFactory.get(self.__decomposer.name, self.__num_features)
+        selector = selector.fit(sparse_ranging_matrix)
+
+        decomposition_alg_path = path.abspath(environment.decomposition_alg_dir_path)
+
+        # Save sparse matrix
+        print("Save sparse matrix")
+        sparse.save_npz(path.join(decomposition_alg_path, str(self.__session_id) + ".npz"), sparse_ranging_matrix.tocoo())
+
+        # Save decomposer
+        print("Save decomposer")
+        ModelUtil.save_to_disk(selector, self.__session_id, self.__decomposer, '', decomposition_alg_path)
+
+        # Save columns
+        print("Save columns")
+        ModelUtil.save_columns_to_disk(unique_track_uris, self.__session_id, environment.columns_dir_path)
