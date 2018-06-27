@@ -18,8 +18,9 @@ class PreparationControlForm(forms.ModelForm):
 class TrainingControlForm(forms.ModelForm):
     class Meta:
         model = Training_Session
-        fields = ('model_algorithm', 'num_iteration')
+        fields = ('preparation_session', 'model_algorithm', 'num_iteration')
         labels = {
+            'preparation_session': _('Datensatz'),
             'model_algorithm': _('Vorhersage Model'),
             'num_iteration': _('Anzahl Iterationen'),
         }
