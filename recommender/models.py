@@ -1,14 +1,14 @@
 import threading
-
 from os import path
-from django.db import models
 
-from .playlist_parser import PlaylistParser
-from .ranging_matrix_factory import RangingMatrixFactory
+from django.db import models
+from scipy import sparse
+
 from .decomposition_factory import DecompositionFactory
 from .model_util import ModelUtil
+from .playlist_parser import PlaylistParser
+from .ranging_matrix_factory import RangingMatrixFactory
 
-from scipy import sparse
 
 class Environment(models.Model):
     name = models.CharField(max_length=10)
@@ -38,6 +38,10 @@ class Preparation_Session(models.Model):
     num_initial_pids = models.IntegerField()
     num_target_features = models.IntegerField()
 
+    def __str__(self):
+        return '#{} - {} - P{} - F{} - {}'.format(self.id, self.decomposition, self.num_initial_pids,
+                                                  self.num_target_features, self.status)
+
     def start(self):
         self.environment = Environment.get_local()
         self.status = "INITIALIZE"
@@ -47,6 +51,32 @@ class Preparation_Session(models.Model):
                                                        self.num_initial_pids,
                                                        self.num_target_features)
         preparation_session_thread.start()
+
+
+class Model_Algorithm(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
+class Training_Session(models.Model):
+    preparation_session = models.ForeignKey(Preparation_Session, on_delete=models.PROTECT)
+    model_algorithm = models.ForeignKey(Model_Algorithm, on_delete=models.PROTECT)
+    num_iteration = models.IntegerField()
+    status = models.CharField(max_length=20)
+
+    def __str__(self):
+        return '#{} - {} - It{} - {}'.format(self.id, self.model_algorithm, self.num_iteration, self.status)
+
+    def start(self):
+        print('blub')
+
+
+class Model_Configuration(models.Model):
+    training_session = models.ForeignKey(Training_Session, on_delete=models.PROTECT)
+    key = models.CharField(max_length=100)
+    value = models.CharField(max_length=100)
 
 
 class PreparationThread(threading.Thread):
@@ -87,7 +117,8 @@ class PreparationThread(threading.Thread):
 
         # Save sparse matrix
         print("Save sparse matrix")
-        sparse.save_npz(path.join(decomposition_alg_path, str(self.__session_id) + ".npz"), sparse_ranging_matrix.tocoo())
+        sparse.save_npz(path.join(decomposition_alg_path, str(self.__session_id) + ".npz"),
+                        sparse_ranging_matrix.tocoo())
 
         # Save decomposer
         print("Save decomposer")

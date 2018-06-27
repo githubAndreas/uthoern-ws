@@ -1,7 +1,7 @@
 from django.shortcuts import render
 
-from .forms import PreparationControlForm
-from .models import Preparation_Session
+from .forms import PreparationControlForm, TrainingControlForm
+from .models import Preparation_Session, Training_Session
 
 
 # Create your views here.
@@ -20,7 +20,17 @@ def dataset(request):
 
 
 def training(request):
-    return render(request, 'recommender/training.html', {})
+    if request.method == "POST":
+        form = TrainingControlForm(request.POST)
+        if form.is_valid():
+            training_session = form.save(commit=False)
+            training_session.start()
+
+    training_control_form = TrainingControlForm
+    context = {'training_control_form': training_control_form,
+               'training_sessions': Training_Session.objects.all()}
+
+    return render(request, 'recommender/training.html', context)
 
 
 def prediction(request):

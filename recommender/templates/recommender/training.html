@@ -1,5 +1,72 @@
 {% extends 'recommender/base.html' %}
 
 {% block pagecontent %}
-<p>blib</p>
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- Training overview -->
+        <div class="col-sm">
+            <div class="card grid-card">
+                <div class="card-body">
+
+                    <!-- Title -->
+                    <h5 class="card-title">Übersicht</h5>
+
+                    {% if training_sessions %}
+                    <div class="accordion" id="training-sessions-accordion">
+                        {% for session in training_sessions %}
+                        <div class="card">
+                            <div class="card-header" id="heading{{session.id}}">
+                                <h5 class="mb-0">
+                                    <button class="btn btn-link" type="button" data-toggle="collapse"
+                                            data-target="#collapse{{session.id}}" aria-expanded="true"
+                                            aria-controls="collapse{{session.id}}">
+                                        {{session}}
+                                    </button>
+                                </h5>
+                            </div>
+                            <div id="collapse{{session.id}}" class="collapse" aria-labelledby="heading{{session.id}}"
+                                 data-parent="#training-sessions-accordion">
+                                <div class="card-body">
+                                    blub
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    {% else %}
+                    <div class="alert alert-info" role="alert">
+                        Es wurde keine Trainingssession gefunden!
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Training controller -->
+        <div class="col-sm">
+            <div class="card grid-card">
+                <div class="card-body">
+
+                    <!-- Title -->
+                    <h5 class="card-title">Steuereinheit</h5>
+
+                    <!-- Controler container -->
+                    <div class="container">
+                        <div class="row">
+                            <div class="row">
+                                <form method="POST" class="post-form">{% csrf_token %}
+                                    {{ training_control_form.as_p }}
+                                    <button type="submit" class="save btn btn-default">Start</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
