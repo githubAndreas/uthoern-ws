@@ -1,5 +1,15 @@
 {% extends 'recommender/base.html' %}
 
+{# Load the tag library #}
+{% load bootstrap3 %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
 {% block pagecontent %}
 <div class="container-fluid">
     <div class="row">
@@ -53,33 +63,20 @@
                     <!-- Title -->
                     <h5 class="card-title">Steuereinheit</h5>
 
-                    <!-- Controler container -->
-                    <div class="container">
-                        <div class="row">
-                            <form method="POST" class="post-form">{% csrf_token %}
-                                {{ preparation_control_form.as_p }}
-                                <!--{{ preparation_control_form.non_field_errors }}
-                                <div class="fieldWrapper">
-                                    {{ preparation_control_form.decomposition.errors }}
-                                    <label>{{ preparation_control_form.decomposition.label_tag }}</label>
-                                    {{ preparation_control_form.subject }}
-                                </div>
-                                <div class="fieldWrapper">
-                                    {{ preparation_control_form.num_initial_pids.errors }}
-                                    <label>{{ preparation_control_form.num_initial_pids.label_tag }}</label>
-                                    <input type="range" min="2" max="1000000" value="{{ preparation_control_form.num_initial_pids.value }}" class="form-control-range" id="formControlRange">
-                                </div>
-                                <div class="fieldWrapper">
-                                    {{ preparation_control_form.num_target_features.errors }}
-                                    <label>{{ preparation_control_form.num_target_features.label_tag }}</label>
-                                    {{ preparation_control_form.sender }}
-                                </div>-->
+                    <!-- Controller container -->
+                    <form method="POST" class="post-form">{% csrf_token %}
+                        <div class="container">
 
+                            {% bootstrap_form preparation_control_form %}
+                            {% buttons %}
+                            <button type="submit" class="btn btn-success">
+                                {% bootstrap_icon "star" %} Submit
+                            </button>
+                            {% endbuttons %}
 
-                                <button type="submit" class="save btn btn-default">Start</button>
-                            </form>
                         </div>
-                    </div>
+                    </form>
+
                 </div>
             </div>
         </div>

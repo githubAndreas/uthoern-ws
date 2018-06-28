@@ -1,5 +1,15 @@
 {% extends 'recommender/base.html' %}
 
+{# Load the tag library #}
+{% load bootstrap3 %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
 {% block pagecontent %}
 <div class="container-fluid">
     <div class="row">
@@ -53,17 +63,18 @@
                     <!-- Title -->
                     <h5 class="card-title">Steuereinheit</h5>
 
-                    <!-- Controler container -->
-                    <div class="container">
-                        <div class="row">
-                            <div class="row">
-                                <form method="POST" class="post-form">{% csrf_token %}
-                                    {{ training_control_form.as_p }}
-                                    <button type="submit" class="save btn btn-default">Start</button>
-                                </form>
-                            </div>
+                    <!-- Controller container -->
+                    <form method="POST" class="post-form">{% csrf_token %}
+                        <div class="container">
+
+                            {% bootstrap_form training_control_form %}
+                            {% buttons %}
+                            <button type="submit" class="btn btn-success">
+                                {% bootstrap_icon "star" %} Submit
+                            </button>
+                            {% endbuttons %}
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
