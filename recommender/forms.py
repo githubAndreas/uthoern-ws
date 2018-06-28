@@ -16,6 +16,11 @@ class PreparationControlForm(forms.ModelForm):
 
 
 class TrainingControlForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(TrainingControlForm, self).__init__(*args, **kwargs)
+        self.fields['preparation_session'].queryset = Preparation_Session.objects.filter(status="FINISH")
+
     class Meta:
         model = Training_Session
         fields = ('preparation_session', 'model_algorithm', 'num_iteration')
@@ -27,6 +32,11 @@ class TrainingControlForm(forms.ModelForm):
 
 
 class PredictionControlForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(PredictionControlForm, self).__init__(*args, **kwargs)
+        self.fields['training_session'].queryset = Training_Session.objects.filter(status="FINISH")
+
     class Meta:
         model = Prediction_Session
         fields = ('training_session', 'num_batch_size')

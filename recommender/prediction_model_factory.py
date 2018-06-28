@@ -10,7 +10,7 @@ class PredictionModelFactory:
             return Ridge()
 
         if model == 'neighbors.KNeighborsRegressor':
-            return KNeighborsRegressor()
+            return KNeighborsRegressor(n_neighbors=2,n_jobs=-1)
 
         # reg = KNeighborsRegressor(n_neighbors=2,n_jobs=-1)
         # reg = LinearRegression(n_jobs=-1)
