@@ -38,14 +38,13 @@ class ModelUtil:
         return joblib.load(absolute_export_path)
 
     @staticmethod
-    def load_dict_from_disk(instance_id: int, model_type: str, unique_track_uris):
+    def load_dict_from_disk(instance_id: int, model_type: str, unique_track_uris, folder_path: str):
         Logger.log_info("Start loading models")
         model_dict = {}
+        instance_folder = path.join(path.abspath(folder_path), str(instance_id))
         for column in unique_track_uris:
             file_name = '{}_{}_{}.{}'.format(instance_id, model_type, column,
                                              ModelUtil.FILE_TYPE)
-
-            instance_folder = path.join(path.abspath(ModelUtil.MODEL_STORAGE), str(instance_id))
 
             absolute_export_path = path.join(instance_folder, file_name)
 

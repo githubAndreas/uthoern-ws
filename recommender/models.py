@@ -7,14 +7,19 @@ from django.db import models
 from scipy import sparse
 from sklearn.model_selection import train_test_split
 
+from .data_frame_util import DataFrameUtil
 from .decomposition_factory import DecompositionFactory
 from .logger import Logger
 from .model_util import ModelUtil
 from .playlist_parser import PlaylistParser
+from .playlist_slice_converter import PlaylistSliceConverter
+from .playlist_util import PlaylistUtil
 from .prediction_model_factory import PredictionModelFactory
 from .ranging_matrix_factory import RangingMatrixFactory
 
 SPARSE_FILE_NAME_FORMAT = "{}_sparse_{}.npz"
+
+CHALLENGE_SET_FILE = "challenge_set.json"
 
 
 class Environment(models.Model):
@@ -292,4 +297,86 @@ class PredictionThread(threading.Thread):
         clairvoyants.save()
 
     def __transform(self, environment: Environment) -> str:
-        return "Test"
+        Logger.log_info("Start predict model instance '{}'".format(self.__session_id))
+
+        Logger.log_info("Start load challenge set")
+        file_collection = PlaylistParser.parse_folder(path.abspath(environment.challenge_set_dir_path),
+                                                      CHALLENGE_SET_FILE)
+        Logger.log_info("Finish load challenge set")
+
+        Logger.log_info("Start load unique track list")
+        unique_track_uris = ModelUtil.load_columns_from_disk(environment.columns_dir_path,
+                                                             self.__training_session.preparation_session.id)
+        Logger.log_info("Finish load unique track list")
+
+        Logger.log_info("Start load decomposer")
+        decomposer = ModelUtil.load_from_disk(self.__training_session.preparation_session.id,
+                                              self.__training_session.preparation_session.decomposition.name, '',
+                                              environment.decomposition_alg_dir_path)
+        Logger.log_info("Finish load decomposer")
+
+        p_slices = PlaylistSliceConverter.from_json_files(file_collection)
+
+        Logger.log_info("Start load models")
+        model_dict = ModelUtil.load_dict_from_disk(self.__training_session.id,
+                                                   self.__training_session.model_algorithm.name, unique_track_uris,
+                                                   environment.ml_alg_dir_path)
+        Logger.log_info("Finish load models")
+
+        recommentation_dict = {}
+
+        for p_slice in p_slices:
+            item_range = p_slice.get_info().get_item_range()
+            batch_count = 0
+
+            for batch in np.array_split(p_slice.get_playlist_collection(), self.__num_batch_size):
+                batch_count = batch_count + 1
+                sparse_challenge_matrix, template_sparse_challenge_matrix, pids = RangingMatrixFactory.create_sparse_challenge_set(
+                    batch, item_range, unique_track_uris, len(batch))
+
+                Logger.log_info("Start reducing dimension")
+                X_sparse = decomposer.transform(sparse_challenge_matrix)
+                Logger.log_info("Finishing reducing dimension")
+
+                # Iteriere über columns
+                Logger.log_info("Start iterate ofer columns")
+                for column_index, track_url in enumerate(unique_track_uris):
+                    Logger.log_info(
+                        "Batch[{}] - Column [{}/{}] - {} predict".format(str(batch_count), str(column_index),
+                                                                         str(len(unique_track_uris)), track_url))
+
+                    reg = model_dict[track_url]
+                    predicted_column = reg.predict(X_sparse)
+
+                    template_column_array = template_sparse_challenge_matrix[:, column_index].toarray()
+                    predicted_column[template_column_array] = 1.0
+                    sparse_challenge_matrix[:, column_index] = predicted_column
+
+                for row_index in range(sparse_challenge_matrix.shape[0]):
+                    Logger.log_info(
+                        "Start recommendation for {}/{}".format(str(row_index), str(sparse_challenge_matrix.shape[0])))
+                    sparse_row = sparse_challenge_matrix[row_index, :].toarray()
+                    template_row = template_sparse_challenge_matrix[row_index, :]
+                    template_row_array = template_row.toarray()
+
+                    sparse_row_df = pd.DataFrame(data=sparse_row, columns=unique_track_uris, dtype=np.float32)
+
+                    all_columns = sparse_row_df.columns.values
+
+                    selected_columns = all_columns[template_row_array[0, :]]
+
+                    sparse_row_df = DataFrameUtil.drop_columns(sparse_row_df, selected_columns)
+
+                    sparse_row_df = sparse_row_df.T
+
+                    sparse_row_df = sparse_row_df.sort_values(by=0, ascending=False)
+
+                    sparse_row_df = sparse_row_df.T
+
+                    recommendation = sparse_row_df.columns.values[:500]
+
+                    recomm_pid = pids[row_index]
+                    recommentation_dict[recomm_pid] = recommendation
+                    Logger.log_info("Finish recommendation for {}".format(str(row_index)))
+
+        return DataFrameUtil.export_to_csv(recommentation_dict, environment.recommendation_dir_path)
