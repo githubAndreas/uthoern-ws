@@ -58,6 +58,24 @@
                         <div class="row">
                             <form method="POST" class="post-form">{% csrf_token %}
                                 {{ preparation_control_form.as_p }}
+                                <!--{{ preparation_control_form.non_field_errors }}
+                                <div class="fieldWrapper">
+                                    {{ preparation_control_form.decomposition.errors }}
+                                    <label>{{ preparation_control_form.decomposition.label_tag }}</label>
+                                    {{ preparation_control_form.subject }}
+                                </div>
+                                <div class="fieldWrapper">
+                                    {{ preparation_control_form.num_initial_pids.errors }}
+                                    <label>{{ preparation_control_form.num_initial_pids.label_tag }}</label>
+                                    <input type="range" min="2" max="1000000" value="{{ preparation_control_form.num_initial_pids.value }}" class="form-control-range" id="formControlRange">
+                                </div>
+                                <div class="fieldWrapper">
+                                    {{ preparation_control_form.num_target_features.errors }}
+                                    <label>{{ preparation_control_form.num_target_features.label_tag }}</label>
+                                    {{ preparation_control_form.sender }}
+                                </div>-->
+
+
                                 <button type="submit" class="save btn btn-default">Start</button>
                             </form>
                         </div>

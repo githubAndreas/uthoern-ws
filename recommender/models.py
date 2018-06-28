@@ -76,7 +76,7 @@ class Training_Session(models.Model):
     status = models.CharField(max_length=20)
 
     def __str__(self):
-        return '#{} - {} - It{} - {}'.format(self.id, self.model_algorithm, self.num_iteration, self.status)
+        return '#{} - {} - It{} - P#{} - {}'.format(self.id, self.model_algorithm, self.num_iteration, self.preparation_session.id, self.status)
 
     def start(self):
         Logger.log_info("Change trainer status to INITIALIZE")
@@ -92,6 +92,16 @@ class Model_Configuration(models.Model):
     training_session = models.ForeignKey(Training_Session, on_delete=models.PROTECT)
     key = models.CharField(max_length=100)
     value = models.CharField(max_length=100)
+
+
+class Prediction_Session(models.Model):
+    training_session = models.ForeignKey(Training_Session, on_delete=models.PROTECT)
+    num_batch_size = models.IntegerField
+    status = models.CharField(max_length=20)
+    export_file_name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return '#{} - T#{} - P#{} - {}'.format(self.id, self.training_session.id, self.training_session.preparation_session.id, self.status)
 
 
 class PreparationThread(threading.Thread):
@@ -229,7 +239,8 @@ class TrainingThread(threading.Thread):
 
                 # Save model
                 if ranging_iter == self.__num_iterations - 1:
-                    ModelUtil.save_to_disk(reg, self.__session_id, self.__model_algorithm.name, target_column, environment.ml_alg_dir_path)
+                    ModelUtil.save_to_disk(reg, self.__session_id, self.__model_algorithm.name, target_column,
+                                           environment.ml_alg_dir_path)
 
                 Logger.log_info('Start writing predicted values into rating matrix')
 

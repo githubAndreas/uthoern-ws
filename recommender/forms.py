@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from recommender.models import Preparation_Session, Training_Session
+from recommender.models import Preparation_Session, Training_Session, Prediction_Session
 
 
 class PreparationControlForm(forms.ModelForm):
@@ -24,3 +24,7 @@ class TrainingControlForm(forms.ModelForm):
             'model_algorithm': _('Vorhersage Model'),
             'num_iteration': _('Anzahl Iterationen'),
         }
+
+class PredictionControlForm(forms.ModelForm):
+    class Meta:
+        pass
