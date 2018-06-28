@@ -12,6 +12,35 @@
                     <!-- Title -->
                     <h5 class="card-title">Übersicht</h5>
 
+                    {% if prediction_sessions %}
+                    <div class="accordion" id="prediction-sessions-accordion">
+                        {% for session in prediction_sessions %}
+                        <div class="card">
+                            <div class="card-header" id="heading{{session.id}}">
+                                <h5 class="mb-0">
+                                    <button class="btn btn-link" type="button" data-toggle="collapse"
+                                            data-target="#collapse{{session.id}}" aria-expanded="true"
+                                            aria-controls="collapse{{session.id}}">
+                                        {{session}}
+                                    </button>
+                                </h5>
+                            </div>
+                            <div id="collapse{{session.id}}" class="collapse" aria-labelledby="heading{{session.id}}"
+                                 data-parent="#prediction-sessions-accordion">
+                                <div class="card-body">
+                                    blub
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    {% else %}
+                    <div class="alert alert-info" role="alert">
+                        Es wurde keine Empfehlungsvorhersage gefunden!
+                    </div>
+                    {% endif %}
+
                 </div>
             </div>
         </div>

@@ -1,7 +1,7 @@
 from django.shortcuts import render
 
 from .forms import PreparationControlForm, TrainingControlForm, PredictionControlForm
-from .models import Preparation_Session, Training_Session
+from .models import Preparation_Session, Training_Session, Prediction_Session
 
 
 # Create your views here.
@@ -34,7 +34,13 @@ def training(request):
 
 
 def prediction(request):
+    if request.method == "POST":
+        form = PredictionControlForm(request.POST)
+        if form.is_valid():
+            prediction_session = form.save(commit=False)
+            prediction_session.start()
 
     prediction_control_form = PredictionControlForm
-    context = {'prediction_control_form': prediction_control_form,}
+    context = {'prediction_control_form': prediction_control_form,
+               'prediction_sessions': Prediction_Session.objects.all()}
     return render(request, 'recommender/prediction.html', context)

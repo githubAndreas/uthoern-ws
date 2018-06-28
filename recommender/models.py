@@ -76,7 +76,8 @@ class Training_Session(models.Model):
     status = models.CharField(max_length=20)
 
     def __str__(self):
-        return '#{} - {} - It{} - P#{} - {}'.format(self.id, self.model_algorithm, self.num_iteration, self.preparation_session.id, self.status)
+        return '#{} - {} - It{} - P#{} - {}'.format(self.id, self.model_algorithm, self.num_iteration,
+                                                    self.preparation_session.id, self.status)
 
     def start(self):
         Logger.log_info("Change trainer status to INITIALIZE")
@@ -101,7 +102,16 @@ class Prediction_Session(models.Model):
     export_file_name = models.CharField(max_length=100)
 
     def __str__(self):
-        return '#{} - T#{} - P#{} - {}'.format(self.id, self.training_session.id, self.training_session.preparation_session.id, self.status)
+        return '#{} - T#{} - P#{} - {}'.format(self.id, self.training_session.id,
+                                               self.training_session.preparation_session.id, self.status)
+
+    def start(self):
+        Logger.log_info("Change prediction status to INITIALIZE")
+        self.status = "INITIALIZE"
+        self.save()
+
+        prediction_session_thread = PredictionThread(self.id, self.training_session, self.num_batch_size)
+        prediction_session_thread.start()
 
 
 class PreparationThread(threading.Thread):
@@ -255,3 +265,31 @@ class TrainingThread(threading.Thread):
                 Logger.log_info("Score Testdatensatz: {:.2f}".format(reg.score(X_test, y_test)))
 
         Logger.log_info("Finish train model instance '{}'".format(self.__session_id))
+
+
+class PredictionThread(threading.Thread):
+
+    def __init__(self, session_id, training_session: Training_Session, num_batch_size: int):
+        threading.Thread.__init__(self)
+
+        self.__session_id = session_id
+        self.__training_session = training_session
+        self.__num_batch_size = num_batch_size
+
+    def run(self):
+        clairvoyants = Prediction_Session.objects.get(pk=self.__session_id)
+
+        Logger.log_info("Change prediction status to RUNNING")
+        clairvoyants.status = "RUNNING"
+        clairvoyants.training_session = self.__training_session
+        clairvoyants.num_batch_size = self.__num_batch_size
+        clairvoyants.save()
+
+        clairvoyants.export_file_name = self.__transform(clairvoyants.training_session.preparation_session.environment)
+
+        Logger.log_info("Change prediction status to FINISH")
+        clairvoyants.status = "FINISH"
+        clairvoyants.save()
+
+    def __transform(self, environment: Environment) -> str:
+        return "Test"
