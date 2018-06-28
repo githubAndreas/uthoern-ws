@@ -1,6 +1,6 @@
 from django.shortcuts import render
 
-from .forms import PreparationControlForm, TrainingControlForm
+from .forms import PreparationControlForm, TrainingControlForm, PredictionControlForm
 from .models import Preparation_Session, Training_Session
 
 
@@ -34,4 +34,7 @@ def training(request):
 
 
 def prediction(request):
-    return render(request, 'recommender/prediction.html', {})
+
+    prediction_control_form = PredictionControlForm
+    context = {'prediction_control_form': prediction_control_form,}
+    return render(request, 'recommender/prediction.html', context)

@@ -96,7 +96,7 @@ class Model_Configuration(models.Model):
 
 class Prediction_Session(models.Model):
     training_session = models.ForeignKey(Training_Session, on_delete=models.PROTECT)
-    num_batch_size = models.IntegerField
+    num_batch_size = models.IntegerField()
     status = models.CharField(max_length=20)
     export_file_name = models.CharField(max_length=100)
 

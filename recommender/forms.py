@@ -25,6 +25,12 @@ class TrainingControlForm(forms.ModelForm):
             'num_iteration': _('Anzahl Iterationen'),
         }
 
+
 class PredictionControlForm(forms.ModelForm):
     class Meta:
-        pass
+        model = Prediction_Session
+        fields = ('training_session', 'num_batch_size')
+        labels = {
+            'training_session': _('Trainingseinheit'),
+            'num_batch_size': _('Anzahl Batches'),
+        }
