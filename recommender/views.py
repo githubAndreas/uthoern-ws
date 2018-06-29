@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 
 from .forms import PreparationControlForm, TrainingControlForm, PredictionControlForm
-from .models import Preparation_Session, Training_Session, Prediction_Session
+from .models import Preparation_Session, Training_Session, Prediction_Session, Environment
 
 
 # Create your views here.
@@ -12,6 +12,8 @@ def dataset(request):
         if form.is_valid():
             preparation_session = form.save(commit=False)
             preparation_session.start()
+
+    Environment.get_local()  # Validate if environment config exists
 
     preparation_control_form = PreparationControlForm()
     context = {'preparation_control_form': preparation_control_form,
@@ -27,6 +29,8 @@ def training(request):
             training_session = form.save(commit=False)
             training_session.start()
 
+    Environment.get_local()  # Validate if environment config exists
+
     training_control_form = TrainingControlForm
     context = {'training_control_form': training_control_form,
                'training_sessions': Training_Session.objects.all()}
@@ -40,6 +44,8 @@ def prediction(request):
         if form.is_valid():
             prediction_session = form.save(commit=False)
             prediction_session.start()
+
+    Environment.get_local()  # Validate if environment config exists
 
     prediction_control_form = PredictionControlForm
     context = {'prediction_control_form': prediction_control_form,

@@ -26,3 +26,5 @@ uthoern\.log
 storage/
 
 db\.sqlite3
+
+environment\.testing

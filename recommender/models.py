@@ -33,7 +33,17 @@ class Environment(models.Model):
 
     @staticmethod
     def get_local():
-        return Environment.objects.get(name__exact='testing')
+        if path.exists(path.abspath("environment.testing")):
+            Logger.log_info("Environment: testing")
+            return Environment.objects.get(name__exact='testing')
+
+        if path.exists(path.abspath("environment.production")):
+            Logger.log_info("Environment: production")
+            return Environment.objects.get(name__exact='production')
+
+        err_msg = "Could not find environment configuration!"
+        Logger.log_error(err_msg)
+        raise ValueError(err_msg)
 
 
 class Session_Meta(models.Model):
@@ -149,6 +159,7 @@ class Prediction_Session(models.Model):
         absolute_export_path = path.abspath(environment.recommendation_dir_path)
 
         return path.join(absolute_export_path, self.export_file_name)
+
 
 class PreparationThread(threading.Thread):
 
