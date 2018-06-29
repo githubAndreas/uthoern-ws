@@ -31,28 +31,28 @@ class TrackFilter:
                 'Totally  unique uris: ' + str(len(unique_track_urls)) + ' from total uris:' + str(
                     track_counter) + ' founded')
 
-            return unique_track_urls
+        return unique_track_urls
 
-        @staticmethod
-        def unique_track_uris_from_playlist(playlist: Playlist) -> Dict[str, int]:
-            Logger.log_info('Start collecting unique title urls from playlist')
+    @staticmethod
+    def unique_track_uris_from_playlist(playlist: Playlist) -> Dict[str, int]:
+        Logger.log_info('Start collecting unique title urls from playlist')
 
-            unique_track_urls = {}
-            index_counter = 0;
-            track_counter = 0;
+        unique_track_urls = {}
+        index_counter = 0;
+        track_counter = 0;
 
-            for track in playlist.get_tracks():
-                url = track.get_simplified_uri()
-                track_counter = track_counter + 1;
+        for track in playlist.get_tracks():
+            url = track.get_simplified_uri()
+            track_counter = track_counter + 1;
 
-                if url not in unique_track_urls:
-                    unique_track_urls[url] = index_counter
-                    index_counter = index_counter + 1
+            if url not in unique_track_urls:
+                unique_track_urls[url] = index_counter
+                index_counter = index_counter + 1
 
-            Logger.log_info('Playlist[' + str(playlist.get_pid()) + '] track urls successfully collected')
+        Logger.log_info('Playlist[' + str(playlist.get_pid()) + '] track urls successfully collected')
 
-            Logger.log_info(
-                'Totally  unique uris: ' + str(len(unique_track_urls)) + ' from total uris:' + str(
-                    track_counter) + ' founded')
+        Logger.log_info(
+            'Totally  unique uris: ' + str(len(unique_track_urls)) + ' from total uris:' + str(
+                track_counter) + ' founded')
 
-            return unique_track_urls
+        return unique_track_urls
