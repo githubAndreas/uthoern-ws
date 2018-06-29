@@ -22,10 +22,12 @@ class DataFrameUtil:
 
     @staticmethod
     def export_to_csv(recommentation_dict, rel_path: str) -> None:
-        absolute_export_path = path.abspath(rel_path)
-        file_name = DataFrameUtil.__create_export_file_name(absolute_export_path)
 
-        with open(file_name, 'w+') as csv_file:
+        file_name = DataFrameUtil.__create_export_file_name()
+
+        absolute_export_path = path.join(path.abspath(rel_path), file_name)
+
+        with open(absolute_export_path, 'w+') as csv_file:
             writer = csv.writer(csv_file)
             writer.writerow(DataFrameUtil.CSV_HEADER)
 
@@ -38,10 +40,10 @@ class DataFrameUtil:
         return file_name
 
     @staticmethod
-    def __create_export_file_name(absolute_export_path: str) -> str:
+    def __create_export_file_name() -> str:
         file_name = DateTimeUtil.get_timestamp_as_string() + '_' + DataFrameUtil.FILE_NAME
 
-        return path.join(absolute_export_path, file_name)
+        return file_name
 
     @staticmethod
     def drop_columns(df, selected_columns):

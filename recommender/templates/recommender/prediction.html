@@ -38,7 +38,36 @@
                             <div id="collapse{{session.id}}" class="collapse" aria-labelledby="heading{{session.id}}"
                                  data-parent="#prediction-sessions-accordion">
                                 <div class="card-body">
-                                    blub
+                                    <div class="container">
+
+                                        <!-- Start time -->
+                                        <div class="row">
+                                            <div class="col-sm">Startzeit</div>
+                                            <div class="col-sm">{{session.meta.start_time | date:'d.m.Y H:i:s:u' }}</div>
+                                        </div>
+
+                                        <!-- End time -->
+                                        <div class="row">
+                                            <div class="col-sm">Endzeit</div>
+                                            <div class="col-sm">{{session.meta.end_time | date:'d.m.Y H:i:s:u'}}</div>
+                                        </div>
+
+                                        <!-- Duration -->
+                                        <div class="row">
+                                            <div class="col-sm">Dauer</div>
+                                            <div class="col-sm">{{ session.meta.start_time|timesince:session.meta.end_time }}</div>
+                                        </div>
+
+                                        <!-- File download -->
+                                        <div class="row" style="margin-top:20px">
+                                            <div class="col-sm">
+                                            </div>
+                                            <div class="col-sm">
+                                                <a href="prediction/{{session.id}}" class="badge badge-primary">Vorhersage herunterladen</a>
+                                            </div>
+                                        </div>
+
+                                    </div>
                                 </div>
                             </div>
                         </div>

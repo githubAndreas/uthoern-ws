@@ -1,3 +1,4 @@
+import datetime
 import threading
 from os import path
 
@@ -13,7 +14,6 @@ from .logger import Logger
 from .model_util import ModelUtil
 from .playlist_parser import PlaylistParser
 from .playlist_slice_converter import PlaylistSliceConverter
-from .playlist_util import PlaylistUtil
 from .prediction_model_factory import PredictionModelFactory
 from .ranging_matrix_factory import RangingMatrixFactory
 
@@ -36,6 +36,11 @@ class Environment(models.Model):
         return Environment.objects.get(name__exact='testing')
 
 
+class Session_Meta(models.Model):
+    start_time = models.DateTimeField(blank=True)
+    end_time = models.DateTimeField(blank=True, null=True)
+
+
 class Decomposition(models.Model):
     name = models.CharField(max_length=50)
 
@@ -49,6 +54,7 @@ class Preparation_Session(models.Model):
     status = models.CharField(max_length=20)
     num_initial_pids = models.IntegerField()
     num_target_features = models.IntegerField()
+    meta = models.ForeignKey(Session_Meta, on_delete=models.CASCADE)
 
     def __str__(self):
         return '#{} - {} - P{} - F{} - {}'.format(self.id, self.decomposition, self.num_initial_pids,
@@ -59,6 +65,12 @@ class Preparation_Session(models.Model):
 
         Logger.log_info("Change preparator status to INITIALIZE")
         self.status = "INITIALIZE"
+
+        meta = Session_Meta()
+        meta.start_time = datetime.datetime.now()
+        meta.save()
+
+        self.meta = meta;
         self.save()
 
         preparation_session_thread = PreparationThread(self.id, self.decomposition,
@@ -79,6 +91,7 @@ class Training_Session(models.Model):
     model_algorithm = models.ForeignKey(Model_Algorithm, on_delete=models.PROTECT)
     num_iteration = models.IntegerField()
     status = models.CharField(max_length=20)
+    meta = models.ForeignKey(Session_Meta, on_delete=models.CASCADE)
 
     def __str__(self):
         return '#{} - {} - It{} - P#{} - {}'.format(self.id, self.model_algorithm, self.num_iteration,
@@ -87,6 +100,12 @@ class Training_Session(models.Model):
     def start(self):
         Logger.log_info("Change trainer status to INITIALIZE")
         self.status = "INITIALIZE"
+
+        meta = Session_Meta()
+        meta.start_time = datetime.datetime.now()
+        meta.save()
+
+        self.meta = meta;
         self.save()
 
         training_session_thread = TrainingThread(self.id, self.preparation_session, self.model_algorithm,
@@ -105,6 +124,7 @@ class Prediction_Session(models.Model):
     num_batch_size = models.IntegerField()
     status = models.CharField(max_length=20)
     export_file_name = models.CharField(max_length=100)
+    meta = models.ForeignKey(Session_Meta, on_delete=models.CASCADE)
 
     def __str__(self):
         return '#{} - T#{} - P#{} - {}'.format(self.id, self.training_session.id,
@@ -113,11 +133,22 @@ class Prediction_Session(models.Model):
     def start(self):
         Logger.log_info("Change prediction status to INITIALIZE")
         self.status = "INITIALIZE"
+
+        meta = Session_Meta()
+        meta.start_time = datetime.datetime.now()
+        meta.save()
+
+        self.meta = meta;
         self.save()
 
         prediction_session_thread = PredictionThread(self.id, self.training_session, self.num_batch_size)
         prediction_session_thread.start()
 
+    def get_file_path(self):
+        environment = Environment.get_local()
+        absolute_export_path = path.abspath(environment.recommendation_dir_path)
+
+        return path.join(absolute_export_path, self.export_file_name)
 
 class PreparationThread(threading.Thread):
 
@@ -142,6 +173,9 @@ class PreparationThread(threading.Thread):
 
         Logger.log_info("Change preparator status to FINISH")
         preparator.status = "FINISH"
+
+        preparator.meta.end_time = datetime.datetime.now()
+        preparator.meta.save()
         preparator.save()
 
     def __fit(self, environment: Environment):
@@ -203,6 +237,8 @@ class TrainingThread(threading.Thread):
 
         Logger.log_info("Change trainer status to FINISH")
         trainer.status = "FINISH"
+        trainer.meta.end_time = datetime.datetime.now()
+        trainer.meta.save()
         trainer.save()
 
     def __fit(self, environment: Environment):
@@ -294,6 +330,8 @@ class PredictionThread(threading.Thread):
 
         Logger.log_info("Change prediction status to FINISH")
         clairvoyants.status = "FINISH"
+        clairvoyants.meta.end_time = datetime.datetime.now()
+        clairvoyants.meta.save()
         clairvoyants.save()
 
     def __transform(self, environment: Environment) -> str:
