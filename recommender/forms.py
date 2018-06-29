@@ -5,6 +5,15 @@ from recommender.models import Preparation_Session, Training_Session, Prediction
 
 
 class PreparationControlForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(PreparationControlForm, self).__init__(*args, **kwargs)
+        self.fields['num_initial_pids'].widget.attrs['min'] = 2
+        self.fields['num_initial_pids'].widget.attrs['max'] = 1000000
+
+        self.fields['num_target_features'].widget.attrs['min'] = 2
+        self.fields['num_target_features'].widget.attrs['max'] = 2262292
+
     class Meta:
         model = Preparation_Session
         fields = ('decomposition', 'num_initial_pids', 'num_target_features')
@@ -20,6 +29,7 @@ class TrainingControlForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(TrainingControlForm, self).__init__(*args, **kwargs)
         self.fields['preparation_session'].queryset = Preparation_Session.objects.filter(status="FINISH")
+        self.fields['num_iteration'].widget.attrs['min'] = 1
 
     class Meta:
         model = Training_Session
@@ -36,6 +46,7 @@ class PredictionControlForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(PredictionControlForm, self).__init__(*args, **kwargs)
         self.fields['training_session'].queryset = Training_Session.objects.filter(status="FINISH")
+        self.fields['num_batch_size'].widget.attrs['min'] = 1
 
     class Meta:
         model = Prediction_Session
