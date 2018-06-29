@@ -58,6 +58,7 @@
                                             <div class="col-sm">{{ session.meta.start_time|timesince:session.meta.end_time }}</div>
                                         </div>
 
+                                        {% if session.status == "FINISH" %}
                                         <!-- File download -->
                                         <div class="row" style="margin-top:20px">
                                             <div class="col-sm">
@@ -66,6 +67,7 @@
                                                 <a href="prediction/{{session.id}}" class="badge badge-primary">Vorhersage herunterladen</a>
                                             </div>
                                         </div>
+                                        {% endif %}
 
                                     </div>
                                 </div>

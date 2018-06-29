@@ -24,3 +24,5 @@ model_storage/
 uthoern\.log
 
 storage/
+
+db\.sqlite3
