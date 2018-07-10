@@ -84,7 +84,7 @@ class RangingMatrixFactory:
 
             for track in playlist.get_tracks():
                 simple_url = track.get_simplified_uri()
-                if simple_url in unique_track_uris:  
+                if simple_url in unique_track_uris:
                     track_index = unique_track_uris[track.get_simplified_uri()]
                     challenge_matrix[index, int(track_index)] = 1.0
                     template_challenge_matrix[index, int(track_index)] = True
