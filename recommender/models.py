@@ -123,10 +123,17 @@ class Training_Session(models.Model):
         training_session_thread.start()
 
 
-class Model_Configuration(models.Model):
-    training_session = models.ForeignKey(Training_Session, on_delete=models.PROTECT)
-    key = models.CharField(max_length=100)
-    value = models.CharField(max_length=100)
+class Model_Statistic(models.Model):
+    training_session = models.ForeignKey(Training_Session, on_delete=models.CASCADE)
+    current_iteration = models.IntegerField()
+    train_min = models.FloatField()
+    train_max = models.FloatField()
+    train_mean = models.FloatField()
+    train_average = models.FloatField()
+    predict_min = models.FloatField()
+    predict_max = models.FloatField()
+    predict_mean = models.FloatField()
+    predict_average = models.FloatField()
 
 
 class Prediction_Session(models.Model):
@@ -244,7 +251,7 @@ class TrainingThread(threading.Thread):
         trainer.num_iterations = self.__num_iterations
         trainer.save()
 
-        self.__fit(trainer.preparation_session.environment)
+        self.__fit(trainer)
 
         Logger.log_info("Change trainer status to FINISH")
         trainer.status = "FINISH"
@@ -252,7 +259,8 @@ class TrainingThread(threading.Thread):
         trainer.meta.save()
         trainer.save()
 
-    def __fit(self, environment: Environment):
+    def __fit(self, trainer: Environment):
+        environment = trainer.preparation_session.environment
         decomposition_alg_path = path.abspath(environment.decomposition_alg_dir_path)
 
         Logger.log_info("Start load sparse rangingmatrix")
@@ -280,9 +288,14 @@ class TrainingThread(threading.Thread):
         X = pd.DataFrame(data=X_sparse, dtype=np.float32)
 
         for ranging_iter in range(self.__num_iterations):
+
+            track_uri_len = len(unique_track_uris)
+            train_scores = np.zeros(track_uri_len);
+            predict_scores = np.zeros(track_uri_len);
+
             for column_index, target_column in enumerate(unique_track_uris):
                 Logger.log_info(
-                    'Model[' + str(column_index + 1) + '/' + str(len(unique_track_uris)) + '] Name:' + target_column)
+                    'Model[' + str(column_index + 1) + '/' + str(track_uri_len) + '] Name:' + target_column)
 
                 y = sparse_ranging_matrix.getcol(column_index)
                 y_df = pd.DataFrame(data=y.toarray(), dtype=np.float32)
@@ -313,8 +326,21 @@ class TrainingThread(threading.Thread):
 
                 Logger.log_info('Finish writing predicted values into rating matrix')
 
-                Logger.log_info("Score Trainingsdatensatz: {:.2f}".format(reg_train.score(X_train, y_train)))
-                Logger.log_info("Score Testdatensatz: {:.2f}".format(reg.score(X_test, y_test)))
+                train_scores[column_index] = reg_train.score(X_train, y_train)
+                predict_scores[column_index] = reg.score(X_test, y_test)
+
+            statistic = Model_Statistic()
+            statistic.training_session = trainer
+            statistic.current_iteration = ranging_iter
+            statistic.train_average = np.average(train_scores)
+            statistic.train_mean = np.mean(train_scores)
+            statistic.train_min = np.min(train_scores)
+            statistic.train_max = np.max(train_scores)
+            statistic.predict_average = np.average(predict_scores)
+            statistic.predict_mean = np.mean(predict_scores)
+            statistic.predict_min = np.min(predict_scores)
+            statistic.predict_max = np.max(predict_scores)
+            statistic.save()
 
         Logger.log_info("Finish train model instance '{}'".format(self.__session_id))
 
