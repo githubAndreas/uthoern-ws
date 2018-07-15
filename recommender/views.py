@@ -55,7 +55,7 @@ def prediction(request):
 
 def download_prediction_csv(request, prediction_id):
     pred = Prediction_Session.objects.get(pk=prediction_id)
-    file_path = pred.get_file_path();
+    file_path = pred.get_file_path()
     print(file_path)
     with open(file_path, 'rb') as fh:
         response = HttpResponse(fh.read(), content_type="application/csv")
