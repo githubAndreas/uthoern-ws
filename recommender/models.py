@@ -311,7 +311,6 @@ class TrainingThread(threading.Thread):
                 # Predict
                 matrix = X_test.as_matrix()
                 predicted_column = reg.predict(matrix)
-
                 # Save model
                 if ranging_iter == self.__num_iterations - 1:
                     ModelUtil.save_to_disk(reg, self.__session_id, self.__model_algorithm.name, target_column,

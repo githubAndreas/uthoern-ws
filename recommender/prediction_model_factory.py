@@ -1,4 +1,4 @@
-from sklearn.linear_model import Ridge
+from sklearn.linear_model import Ridge, LinearRegression, Lasso
 from sklearn.neighbors import KNeighborsRegressor
 
 
@@ -6,15 +6,16 @@ class PredictionModelFactory:
 
     @staticmethod
     def get(model: str):
+        if model == 'neighbors.KNeighborsRegressor':
+            return KNeighborsRegressor(n_neighbors=3)
+
+        if model == 'linear_model.LinearRegression':
+            return LinearRegression()
+
         if model == 'linear_model.Ridge':
             return Ridge()
 
-        if model == 'neighbors.KNeighborsRegressor':
-            return KNeighborsRegressor(n_neighbors=2,n_jobs=-1)
+        if model == 'linear_model.Lasso':
+            return Lasso(alpha=0.1)
 
-        # reg = KNeighborsRegressor(n_neighbors=2,n_jobs=-1)
-        # reg = LinearRegression(n_jobs=-1)
-        # reg = Lasso
-        # reg = BayesianRidge()
-        # reg = SVR(C=1.0, epsilon=0.2)
         return None
